@@ -38,6 +38,7 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Model.cs" />
     <Compile Include="ModelRenderer.cs" />
     <Compile Include="Project1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
