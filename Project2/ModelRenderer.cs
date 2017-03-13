@@ -77,7 +77,7 @@ namespace Project2
 
 			// TODO: Add your drawing code here
 
-			base.Draw(gameTime);
+			base.Draw(gameTime); //yeeeeaaaah draw it baby
 		}
 	}
 }
