@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.IO;
 using System.Collections.Generic;
+using Paloma;
 
 namespace Project2
 {
@@ -91,14 +92,20 @@ namespace Project2
 		float interpolation;
 		int currentFrame;
 
-		List textures;
+		Texture2D[] textures;
 		static Vector3[,] normals;
 
+		public Model(string modelPath, string skinPath)
+		{
+			LoadModel(modelPath);
+			LoadSkin(skinPath);
+		}
+
 		// Load a MD3 model
-		void LoadModel(string modelFileName)
+		private void LoadModel(string modelFileName)
 		{
 			// Open file
-			BinaryReader reader = new BinaryReader(File.Open(modelFileName, FileMode.Open);
+			BinaryReader reader = new BinaryReader(File.Open(modelFileName, FileMode.Open));
 
 			int currentOffset = 0;
 
@@ -131,6 +138,7 @@ namespace Project2
 			frames = new Frame[header.frameCount];
 			tags = new Tag[header.frameCount * header.tagCount];
 			meshes = new Mesh[header.meshCount];
+			textures = new Texture2D[header.skinCount];
 
 			// Frames
 			reader.BaseStream.Seek(header.frameOffset, SeekOrigin.Begin);
@@ -228,6 +236,68 @@ namespace Project2
 			}
 
 			reader.Close();
+		}
+
+		// Loads a skin
+		private void LoadSkin(string skinFileName)
+		{
+			var lines = File.ReadLines(skinFileName);
+
+			// Loop through all lines in the file
+			int currentTexture = 0;
+			foreach (var line in lines)
+			{
+				if (line != "" && !line.StartsWith("tag_"))
+				{
+					string meshName = line.Substring(0, line.IndexOf(','));
+					string texturePath = line.Substring(line.IndexOf(',') + 1);
+
+					// Find mesh with corresponding name
+					int i;
+					for (i = 0; meshes[i].header.name != meshName && i < meshes.Length; ++i);
+
+					// Load texture from file name and add it to texture list
+					if (i != meshes.Length)
+					{
+						textures[currentTexture] = LoadTexture(device, texturePath);
+						meshes[i].texture = currentTexture;
+						++currentTexture;
+					}
+					else
+					{
+						Console.WriteLine("aaaahh");
+					}
+				}
+			}
+		}
+
+		// Reads textures from jpg, png, and tga files
+		public static Texture2D LoadTexture(GraphicsDevice device, string texturePath)
+		{
+			Texture2D texture;
+
+			if (texturePath.ToLower().EndsWith(".tga"))
+			{
+				TargaImage image = new TargaImage(texturePath);
+				texture = new Texture2D(device, image.Header.Width, image.Header.Height);
+				Color[] data = new Color[image.Header.Height * image.Header.Width];
+				for (int y = 0; y < image.Header.Height; y++)
+					for (int x = 0; x < image.Header.Width; x++)
+					{
+						System.Drawing.Color color = image.Image.GetPixel(x, y);
+						data[y * image.Header.Width + x] = new Color(color.R, color.G, color.B, color.A);
+					}
+				image.Dispose();
+				texture.SetData(data);
+			}
+			else
+			{
+				FileStream stream = new FileStream(texturePath, FileMode.Open);
+				texture = Texture2D.FromStream(device, stream);
+				stream.Close();
+			}
+
+			return texture;
 		}
 	}
 }
