@@ -51,7 +51,7 @@ namespace Project2
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 
-			StreamReader reader = new StreamReader(File.Open("model.txt", FileMode.Open));
+			//StreamReader reader = new StreamReader(File.Open("model.txt", FileMode.Open));
 
 			lowerModel = new Project2.Model(GraphicsDevice, "models\\players\\laracroft\\head.md3", "models\\players\\laracroft\\head_default.skin");
 		}
@@ -101,8 +101,7 @@ namespace Project2
 
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            Model.SetUp(); //Does this go here?
-            MD3.Render(effect);
+            MD3.Render(lowerModel, effect);
 
 
             base.Draw(gameTime);
