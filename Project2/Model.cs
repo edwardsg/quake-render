@@ -95,8 +95,9 @@ namespace Project2
 		Texture2D[] textures;
 		static Vector3[,] normals;
 
-		public Model(string modelPath, string skinPath)
+		public Model(GraphicsDevice device, string modelPath, string skinPath)
 		{
+			this.device = device;
 			LoadModel(modelPath);
 			LoadSkin(skinPath);
 		}
@@ -126,10 +127,6 @@ namespace Project2
 			header.meshCount = reader.ReadInt32();
 			header.skinCount = reader.ReadInt32();
 			header.frameOffset = reader.ReadInt32();
-			header.tagCount = reader.ReadInt32();
-			header.meshCount = reader.ReadInt32();
-			header.skinCount = reader.ReadInt32();
-			header.frameOffset = reader.ReadInt32();
 			header.tagOffset = reader.ReadInt32();
 			header.meshOffset = reader.ReadInt32();
 			header.fileSize = reader.ReadInt32();
@@ -138,7 +135,6 @@ namespace Project2
 			frames = new Frame[header.frameCount];
 			tags = new Tag[header.frameCount * header.tagCount];
 			meshes = new Mesh[header.meshCount];
-			textures = new Texture2D[header.skinCount];
 
 			// Frames
 			reader.BaseStream.Seek(header.frameOffset, SeekOrigin.Begin);
@@ -151,7 +147,7 @@ namespace Project2
 
 				bytes = reader.ReadBytes(16);
 				for (int j = 0; j < bytes.Length && bytes[j] != '\0'; ++j)
-					frames[j].creator += (char) bytes[j];
+					frames[i].creator += (char) bytes[j];
 			}
 
 			// Tags
@@ -195,6 +191,8 @@ namespace Project2
 				meshes[i].header.textureVectorOffset = reader.ReadInt32();
 				meshes[i].header.vertexOffset = reader.ReadInt32();
 				meshes[i].header.meshSize = reader.ReadInt32();
+
+				textures = new Texture2D[meshes[i].header.skinCount];
 
 				// Skins
 				reader.BaseStream.Seek(currentOffset + meshes[i].header.skinOffset, SeekOrigin.Begin);
@@ -298,6 +296,16 @@ namespace Project2
 			}
 
 			return texture;
+		}
+
+		public void Render(BasicEffect effect)
+		{
+
+		}
+
+		private void DrawModel()
+		{
+
 		}
 	}
 }

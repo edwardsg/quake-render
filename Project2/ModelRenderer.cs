@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+using System.IO;
+
 namespace Project2
 {
 	/// <summary>
@@ -11,6 +13,10 @@ namespace Project2
 	{
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
+
+		BasicEffect effect;
+
+		Model lowerModel;
 
 		public ModelRenderer()
 		{
@@ -26,7 +32,7 @@ namespace Project2
 		/// </summary>
 		protected override void Initialize()
 		{
-			// TODO: Add your initialization logic here
+			effect = new BasicEffect(GraphicsDevice);
 
 			base.Initialize();
 		}
@@ -40,7 +46,9 @@ namespace Project2
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 
-			// TODO: use this.Content to load your game content here
+			StreamReader reader = new StreamReader(File.Open("model.txt", FileMode.Open));
+
+			lowerModel = new Project2.Model(GraphicsDevice, "models\\players\\laracroft\\head.md3", "models\\players\\laracroft\\head_default.skin");
 		}
 
 		/// <summary>
@@ -49,7 +57,7 @@ namespace Project2
 		/// </summary>
 		protected override void UnloadContent()
 		{
-			// TODO: Unload any non ContentManager content here
+			
 		}
 
 		/// <summary>
@@ -73,9 +81,19 @@ namespace Project2
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime)
 		{
-			GraphicsDevice.Clear(Color.CornflowerBlue);
+			Matrix world = Matrix.CreateScale((float) 1 / 64);
+			Matrix view = Matrix.CreateLookAt(new Vector3(0, 0, 100), Vector3.Zero, Vector3.Up);
+			Matrix projection = Matrix.CreatePerspectiveFieldOfView(.9f, GraphicsDevice.Viewport.AspectRatio, .01f, 200);
 
-			// TODO: Add your drawing code here
+			effect.LightingEnabled = true;
+			effect.TextureEnabled = true;
+			effect.VertexColorEnabled = false;
+			effect.DirectionalLight0.DiffuseColor = new Vector3(.5f, .5f, .5f);
+			effect.DirectionalLight0.SpecularColor = new Vector3(.25f, .25f, .25f);
+			effect.DirectionalLight0.Direction = new Vector3(-1, 0, -1);
+			effect.AmbientLightColor = new Vector3(.2f, .2f, .2f);
+
+			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			base.Draw(gameTime);
 		}
