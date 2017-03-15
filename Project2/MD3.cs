@@ -47,47 +47,87 @@ namespace Project2
 
 		struct Animation
 		{
-			AnimationType type;
-
-			int firstFrame;
-			int totalFrames;
-			int loopingFrames;
-			int fps;
+			public int firstFrame;
+			public int totalFrames;
+			public int loopingFrames;
+			public int fps;
 		}
 
         Model lowerModel;
         Model upperModel;
         Model headModel;
         Model gunModel;
-        Animation[] animations;
+        Animation[] animations = new Animation[(int) AnimationType.MAX_ANIMATIONS];
         int currentAnimation;
 
-        int firstFrame;
-        int totalFrames;
-        int loopingFrames;
-        int FPS;
+		public MD3(string animationPath)
+		{
+			LoadAnimation(animationPath);
+		}
 
-        public static void LoadAnimation()
+        public void LoadAnimation(string animationPath)
+        {
+			StreamReader reader = new StreamReader(File.Open(animationPath, FileMode.Open));
+
+			string[] numbers;
+
+			for (int i = 0; i < animations.Length; ++i)
+			{
+				if (Char.IsDigit((char)reader.Peek()))
+				{
+					numbers = reader.ReadLine().Split(' ');
+					animations[i].firstFrame = Convert.ToInt32(numbers[0]);
+					animations[i].totalFrames = Convert.ToInt32(numbers[1]);
+					animations[i].loopingFrames = Convert.ToInt32(numbers[2]);
+					animations[i].fps = Convert.ToInt32(numbers[3]);
+				}
+			}
+
+			for (int i = (int) AnimationType.LEGS_WALKCR; i < (int) AnimationType.MAX_ANIMATIONS; ++i)
+				animations[i].firstFrame -= animations[(int) AnimationType.TORSO_GESTURE].firstFrame;
+        }
+
+        public void SetAnimation()
+        {
+			if (currentAnimation <= (int)AnimationType.BOTH_DEAD3)
+			{
+				upperModel.StartFrame = animations[currentAnimation].firstFrame;
+				upperModel.EndFrame = animations[currentAnimation].totalFrames - 1;
+				upperModel.NextFrame = animations[currentAnimation].firstFrame;
+				upperModel.CurrentFrame = animations[currentAnimation].firstFrame + 1;
+
+				lowerModel.StartFrame = animations[currentAnimation].firstFrame;
+				lowerModel.EndFrame = animations[currentAnimation].totalFrames - 1;
+				lowerModel.NextFrame = animations[currentAnimation].firstFrame;
+				lowerModel.CurrentFrame = animations[currentAnimation].firstFrame + 1;
+			}
+			else if (currentAnimation <= (int)AnimationType.TORSO_STAND2)
+			{
+				upperModel.StartFrame = animations[currentAnimation].firstFrame;
+				upperModel.EndFrame = animations[currentAnimation].totalFrames - 1;
+				upperModel.NextFrame = animations[currentAnimation].firstFrame;
+				upperModel.CurrentFrame = animations[currentAnimation].firstFrame + 1;
+			}
+			else
+			{
+				lowerModel.StartFrame = animations[currentAnimation].firstFrame;
+				lowerModel.EndFrame = animations[currentAnimation].totalFrames - 1;
+				lowerModel.NextFrame = animations[currentAnimation].firstFrame;
+				lowerModel.CurrentFrame = animations[currentAnimation].firstFrame + 1;
+			}
+        }
+
+        public void IncrementAnimation()
         {
 
         }
 
-        public static void SetAnimation()
+        public void Update()
         {
 
         }
 
-        public static void IncrementAnimation()
-        {
-
-        }
-
-        public static void Update()
-        {
-
-        }
-
-        public static void UpdateFrame()
+        public void UpdateFrame()
         {
 
         }
@@ -96,12 +136,12 @@ namespace Project2
         {
             Matrix current = new Matrix();
             Matrix next = new Matrix();
-            DrawAllModels(lowerModel, current, next);
+     //       DrawAllModels(lowerModel, current, next);
         }
 
         private static void DrawAllModels(Model model, Matrix current, Matrix next) //does this go into Model Class?
         {
-            DrawModel(model);
+      //      DrawModel(model);
         }
 
         private void DrawModel(Model model) //does this go into Model Class?

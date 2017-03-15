@@ -23,6 +23,8 @@ namespace Project2
 
         Model lowerModel;
 
+		MD3 lara;
+
 		public ModelRenderer()
 		{
 			graphics = new GraphicsDeviceManager(this);
@@ -53,7 +55,9 @@ namespace Project2
 
 			StreamReader reader = new StreamReader(File.Open("model.txt", FileMode.Open));
 
-			lowerModel = new Project2.Model(GraphicsDevice, "models\\players\\laracroft\\head.md3", "models\\players\\laracroft\\head_default.skin");
+			lara = new MD3("models\\players\\laracroft\\animation.cfg");
+
+			lowerModel = new Model(GraphicsDevice, "models\\players\\laracroft\\head.md3", "models\\players\\laracroft\\head_default.skin");
 		}
 
 		/// <summary>

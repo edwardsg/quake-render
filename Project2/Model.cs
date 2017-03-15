@@ -86,11 +86,44 @@ namespace Project2
 		Model[] links;
 		GraphicsDevice device;
 
-		int startFrame;
-		int endFrame;
-		int nextFrame;
+		private int startFrame;
+		private int endFrame;
+		private int nextFrame;
+		private int currentFrame;
+
 		float interpolation;
-		int currentFrame;
+
+		public int StartFrame
+		{
+			set
+			{
+				startFrame = value;
+			}
+		}
+
+		public int EndFrame
+		{
+			set
+			{
+				endFrame = value;
+			}
+		}
+
+		public int NextFrame
+		{
+			set
+			{
+				nextFrame = value;
+			}
+		}
+
+		public int CurrentFrame
+		{
+			set
+			{
+				CurrentFrame = value;
+			}
+		}
 
 		Texture2D[] textures;
 		static Vector3[,] normals = new Vector3[256, 256];
