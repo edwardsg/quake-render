@@ -16,7 +16,12 @@ namespace Project2
 
 		BasicEffect effect;
 
-		Model lowerModel;
+        VertexPositionNormalTexture[] lower;
+        VertexPositionNormalTexture[] upper;
+        VertexPositionNormalTexture[] gun;
+        VertexPositionNormalTexture[] head;
+
+        Model lowerModel;
 
 		public ModelRenderer()
 		{
@@ -97,9 +102,10 @@ namespace Project2
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
             Model.SetUp(); //Does this go here?
-            Model.Render(lowerModel,effect);
+            MD3.Render(effect);
 
-			base.Draw(gameTime);
+
+            base.Draw(gameTime);
 		}
 	}
 }

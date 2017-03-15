@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.IO;
 
 namespace Project2
 {
@@ -64,6 +68,33 @@ namespace Project2
         }
 
         public static void IncrementAnimation()
+        {
+
+        }
+
+        public static void Update()
+        {
+
+        }
+
+        public static void UpdateFrame()
+        {
+
+        }
+
+        public static void Render(BasicEffect effect)
+        {
+            Matrix current = new Matrix();
+            Matrix next = new Matrix();
+            DrawAllModels(lowerModel, current, next);
+        }
+
+        private static void DrawAllModels(Model model, Matrix current, Matrix next) //does this go into Model Class?
+        {
+            DrawModel(model);
+        }
+
+        private void DrawModel(Model model) //does this go into Model Class?
         {
 
         }

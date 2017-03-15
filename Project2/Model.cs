@@ -298,23 +298,6 @@ namespace Project2
 			return texture;
 		}
 
-		public static void Render(Model model, BasicEffect effect)
-		{
-            Matrix current = new Matrix();
-            Matrix next = new Matrix();
-            DrawAllModels(model, current, next);
-		}
-
-        private static void DrawAllModels(Model model, Matrix current, Matrix next)
-        {
-            DrawModel();
-        }
-
-        private void DrawModel()
-		{
-
-		}
-
         public static void SetUp()
         {
             for (int i = 0; i < 256; i++)
@@ -329,5 +312,6 @@ namespace Project2
                 }
             }
         }
+
     }
 }
