@@ -95,7 +95,7 @@ namespace Project2
 
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
-			base.Draw(gameTime);
+			base.Draw(gameTime); //yeeeeaaaah draw it baby
 		}
 	}
 }
