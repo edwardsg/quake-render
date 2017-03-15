@@ -305,9 +305,9 @@ namespace Project2
             DrawAllModels(model, current, next);
 		}
 
-        private void DrawAllModels(Model model, Matrix current, Matrix next)
+        private static void DrawAllModels(Model model, Matrix current, Matrix next)
         {
-
+            DrawModel();
         }
 
         private void DrawModel()

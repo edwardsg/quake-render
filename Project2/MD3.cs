@@ -47,5 +47,28 @@ namespace Project2
         Model gunModel;
         Animation[] animations;
         int currentAnimation;
+
+        int firstFrame;
+        int totalFrames;
+        int loopingFrames;
+        int FPS;
+
+        public static void LoadAnimation()
+        {
+
+        }
+
+        public static void SetAnimation()
+        {
+
+        }
+
+        public static void IncrementAnimation()
+        {
+
+        }
+
     }
 }
+
+
