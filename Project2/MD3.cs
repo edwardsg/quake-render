@@ -45,7 +45,7 @@ namespace Project2
         Model upperModel;
         Model headModel;
         Model gunModel;
-        Animation[] animations;
+        AnimationTypes[] animations;
         int currentAnimation;
     }
 }

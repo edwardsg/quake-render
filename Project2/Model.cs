@@ -93,7 +93,7 @@ namespace Project2
 		int currentFrame;
 
 		Texture2D[] textures;
-		static Vector3[,] normals;
+		static Vector3[,] normals = new Vector3[256, 256];
 
 		public Model(GraphicsDevice device, string modelPath, string skinPath)
 		{
@@ -305,7 +305,7 @@ namespace Project2
             DrawAllModels(model, current, next);
 		}
 
-        private void DrawAllModels(Model model, Matrix current, Matrix next)
+        private static void DrawAllModels(Model model, Matrix current, Matrix next)
         {
 
         }
