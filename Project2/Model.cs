@@ -298,14 +298,36 @@ namespace Project2
 			return texture;
 		}
 
-		public void Render(BasicEffect effect)
+		public static void Render(Model model, BasicEffect effect)
+		{
+            Matrix current = new Matrix();
+            Matrix next = new Matrix();
+            DrawAllModels(model, current, next);
+		}
+
+        private void DrawAllModels(Model model, Matrix current, Matrix next)
+        {
+
+        }
+
+        private void DrawModel()
 		{
 
 		}
 
-		private void DrawModel()
-		{
-
-		}
-	}
+        public static void SetUp()
+        {
+            for (int i = 0; i < 256; i++)
+            {
+                for (int j = 0; j < 256; j++)
+                {
+                    float alpha = (float)(2.0 * i * Math.PI / 255);
+                    float beta = (float)(2.0 * j * Math.PI / 255);
+                    normals[i, j].X = (float)(Math.Cos(beta) * Math.Sin(alpha));
+                    normals[i, j].Y = (float)(Math.Sin(beta) * Math.Sin(alpha));
+                    normals[i, j].Z = (float)(Math.Cos(alpha));
+                }
+            }
+        }
+    }
 }

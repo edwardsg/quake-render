@@ -54,7 +54,8 @@ namespace Project2
 		/// <summary>
 		/// UnloadContent will be called once per game and is the place to unload
 		/// game-specific content.
-		/// </summary>
+		/// </sumBatista
+
 		protected override void UnloadContent()
 		{
 			
@@ -95,7 +96,10 @@ namespace Project2
 
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
-			base.Draw(gameTime); //yeeeeaaaah draw it baby
+            Model.SetUp(); //Does this go here?
+            Model.Render(lowerModel,effect);
+
+			base.Draw(gameTime);
 		}
 	}
 }
