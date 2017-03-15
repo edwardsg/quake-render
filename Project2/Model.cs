@@ -93,7 +93,7 @@ namespace Project2
 		int currentFrame;
 
 		Texture2D[] textures;
-		static Vector3[,] normals;
+		static Vector3[,] normals = new Vector3[256, 256];
 
 		public Model(GraphicsDevice device, string modelPath, string skinPath)
 		{
@@ -298,6 +298,23 @@ namespace Project2
 			return texture;
 		}
 
+		public static void Render(Model model, BasicEffect effect)
+		{
+            Matrix current = new Matrix();
+            Matrix next = new Matrix();
+            DrawAllModels(model, current, next);
+		}
+
+        private static void DrawAllModels(Model model, Matrix current, Matrix next)
+        {
+
+        }
+
+        private void DrawModel()
+		{
+
+		}
+
         public static void SetUp()
         {
             for (int i = 0; i < 256; i++)
@@ -309,38 +326,6 @@ namespace Project2
                     normals[i, j].X = (float)(Math.Cos(beta) * Math.Sin(alpha));
                     normals[i, j].Y = (float)(Math.Sin(beta) * Math.Sin(alpha));
                     normals[i, j].Z = (float)(Math.Cos(alpha));
-                }
-            }
-        }
-
-
-        public static void DrawAllModels(Model model, Matrix current, Matrix next) 
-        {
-            //DrawModel(model);
-        }
-
-        public static void DrawModel(Model model)
-        {
-            VertexPositionNormalTexture[] lower;
-            for (int i = 0; i < model.meshes.Length; i++)
-            {
-                int currentTexture;
-                int currentOffsetVertex;
-                int bufferCount = 0;
-                if (model.meshes[i].texture !=0)
-                {
-                    currentTexture = model.meshes[i].texture;
-                }
-                //currentOffsetVertex = start;
-                int triCount = model.meshes[i].header.triangleCount;
-                lower = new VertexPositionNormalTexture[triCount * 3];
-                for (int j = 0; j < triCount; j++)
-                {
-
-                    for (int k = 0; k < 3; k++)
-                    {
-                         ;
-                    }
                 }
             }
         }
