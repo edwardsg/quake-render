@@ -12,7 +12,7 @@ namespace Project2
 {
     class MD3
     {
-        enum AnimationTypes
+        enum AnimationType
         {
             BOTH_DEATH1 = 0,
             BOTH_DEAD1 = 1,
@@ -45,11 +45,21 @@ namespace Project2
             MAX_ANIMATIONS
         };
 
+		struct Animation
+		{
+			AnimationType type;
+
+			int firstFrame;
+			int totalFrames;
+			int loopingFrames;
+			int fps;
+		}
+
         Model lowerModel;
         Model upperModel;
         Model headModel;
         Model gunModel;
-        AnimationTypes[] animations;
+        Animation[] animations;
         int currentAnimation;
 
         int firstFrame;
