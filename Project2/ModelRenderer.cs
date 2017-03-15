@@ -53,7 +53,7 @@ namespace Project2
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 
-			StreamReader reader = new StreamReader(File.Open("model.txt", FileMode.Open));
+			//StreamReader reader = new StreamReader(File.Open("model.txt", FileMode.Open));
 
 			lara = new MD3("models\\players\\laracroft\\animation.cfg");
 
@@ -105,8 +105,7 @@ namespace Project2
 
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            Model.SetUp(); //Does this go here?
-            MD3.Render(effect);
+            MD3.Render(lowerModel, effect);
 
 
             base.Draw(gameTime);
