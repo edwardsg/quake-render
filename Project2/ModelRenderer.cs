@@ -6,15 +6,22 @@ using System.IO;
 
 namespace Project2
 {
-	/// <summary>
-	/// This is the main type for your game.
-	/// </summary>
 	public class ModelRenderer : Game
 	{
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 
-		BasicEffect effect;
+        float rotateY;
+        Matrix rotationMatrix;
+        bool enterPressed = false;
+        int currentAnimation = 0;
+        Matrix world;
+        Matrix view;
+        Matrix projection;
+        Vector3 trans;
+        Matrix position;
+
+        BasicEffect effect;
 
         VertexPositionNormalTexture[] lower;
         VertexPositionNormalTexture[] upper;
@@ -31,12 +38,7 @@ namespace Project2
 			Content.RootDirectory = "Content";
 		}
 
-		/// <summary>
-		/// Allows the game to perform any initialization it needs to before starting to run.
-		/// This is where it can query for any required services and load any non-graphic
-		/// related content.  Calling base.Initialize will enumerate through any components
-		/// and initialize them as well.
-		/// </summary>
+		
 		protected override void Initialize()
 		{
 			effect = new BasicEffect(GraphicsDevice);
@@ -44,14 +46,13 @@ namespace Project2
 			base.Initialize();
 		}
 
-		/// <summary>
-		/// LoadContent will be called once per game and is the place to load
-		/// all of your content.
-		/// </summary>
+		
 		protected override void LoadContent()
 		{
-			// Create a new SpriteBatch, which can be used to draw textures.
-			spriteBatch = new SpriteBatch(GraphicsDevice);
+            world = Matrix.CreateTranslation(new Vector3(0, 0, 0));
+            view = Matrix.CreateLookAt(new Vector3(0, 0, 100), Vector3.Zero, Vector3.Up);
+            projection = Matrix.CreatePerspectiveFieldOfView(.9f, GraphicsDevice.Viewport.AspectRatio, .01f, 200.0f);
+            spriteBatch = new SpriteBatch(GraphicsDevice);
 
 			//StreamReader reader = new StreamReader(File.Open("model.txt", FileMode.Open));
 
@@ -60,40 +61,56 @@ namespace Project2
 			lowerModel = new Model(GraphicsDevice, "models\\players\\laracroft\\head.md3", "models\\players\\laracroft\\head_default.skin");
 		}
 
-		/// <summary>
-		/// UnloadContent will be called once per game and is the place to unload
-		/// game-specific content.
-		/// </sumBatista
+		
 
 		protected override void UnloadContent()
 		{
 			
 		}
 
-		/// <summary>
-		/// Allows the game to run logic such as updating the world,
-		/// checking for collisions, gathering input, and playing audio.
-		/// </summary>
-		/// <param name="gameTime">Provides a snapshot of timing values.</param>
+		
 		protected override void Update(GameTime gameTime)
 		{
-			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-				Exit();
+            KeyboardState keyboard = Keyboard.GetState();
 
-			// TODO: Add your update logic here
+            if (keyboard.IsKeyDown(Keys.Enter))
+            {
+                if (enterPressed == false)
+                {
+                    enterPressed = true;
+                    currentAnimation++;
+                }
+            }
 
-			base.Update(gameTime);
+            if (keyboard.IsKeyUp(Keys.Enter))
+            {
+                enterPressed = false;
+            }
+
+            if (keyboard.IsKeyDown(Keys.Left)) 
+            {
+                rotateY -= 0.1f * gameTime.ElapsedGameTime.Milliseconds;
+            }
+
+            if (keyboard.IsKeyDown(Keys.Right)) 
+            {
+                rotateY += 0.1f  * gameTime.ElapsedGameTime.Milliseconds;
+            }
+
+            rotationMatrix = Matrix.CreateFromYawPitchRoll(rotateY, 0, 0);
+
+            trans += rotateY * rotationMatrix.Right;
+            position = Matrix.CreateTranslation(trans);
+            effect.View = view * position * rotationMatrix;
+
+            base.Update(gameTime);
 		}
 
-		/// <summary>
-		/// This is called when the game should draw itself.
-		/// </summary>
-		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime)
 		{
-			Matrix world = Matrix.CreateScale((float) 1 / 64);
-			Matrix view = Matrix.CreateLookAt(new Vector3(0, 0, 100), Vector3.Zero, Vector3.Up);
-			Matrix projection = Matrix.CreatePerspectiveFieldOfView(.9f, GraphicsDevice.Viewport.AspectRatio, .01f, 200);
+			world = Matrix.CreateScale((float) 1 / 64);
+            effect.World = world;
+            effect.Projection = projection;
 
 			effect.LightingEnabled = true;
 			effect.TextureEnabled = true;
