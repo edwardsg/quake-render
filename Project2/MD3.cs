@@ -137,8 +137,8 @@ namespace Project2
             Model.SetUp();
             Matrix current = new Matrix();
             Matrix next = new Matrix();
-            //Model.DrawAllModels(lowerModel, current, next);
-            Model.DrawModel(model);
+			//Model.DrawAllModels(lowerModel, current, next);
+			model.DrawModel(current, next, effect);
         }
     }
 }

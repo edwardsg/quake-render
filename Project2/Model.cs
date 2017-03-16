@@ -331,42 +331,60 @@ namespace Project2
 			return texture;
 		}
 
-		public static void Render(Model model, BasicEffect effect)
+        private static void DrawAllModels(Model model, Matrix current, Matrix next, BasicEffect effect)
+        {
+
+        }
+
+		public void DrawModel(Matrix current, Matrix next, BasicEffect effect)
 		{
-            Matrix current = new Matrix();
-            Matrix next = new Matrix();
-            DrawAllModels(model, current, next);
+			for (int i = 0; i < header.meshCount; ++i)
+			{
+				if (meshes[i].texture != -1)
+					effect.Texture = textures[meshes[i].texture];
+
+				VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[meshes[i].header.vertexCount];
+
+				int currentOffset = currentFrame * meshes[i].header.vertexCount;
+				int nextOffset = nextFrame * meshes[i].header.vertexCount;
+
+				for (int j = 0; j < meshes[i].header.vertexCount; ++j)
+				{
+					Vertex currentVertex = meshes[i].vertices[j + currentOffset];
+					Vertex nextVertex = meshes[i].vertices[j + nextOffset];
+
+					Vector3 currentPosition = currentVertex.vertex;
+					Vector3 nextPosition = nextVertex.vertex;
+
+					currentPosition = Vector3.Transform(currentPosition, current);
+					nextPosition = Vector3.Transform(nextPosition, next);
+
+					Vector3 currentNormal = normals[currentVertex.normal[0], currentVertex.normal[1]];
+					Vector3 nextNormal = normals[nextVertex.normal[0], nextVertex.normal[1]];
+
+					currentNormal = Vector3.TransformNormal(currentNormal, current);
+					nextNormal = Vector3.TransformNormal(nextNormal, next);
+
+					Vector3 interpolatedPosition = Vector3.Lerp(currentPosition, nextPosition, interpolation);
+					Vector3 interpolatedNormal = Vector3.Lerp(currentNormal, nextNormal, interpolation);
+
+					Vector2 textureCoordinate = meshes[i].textureCoordinates[j + currentOffset];
+
+					vertices[j] = new VertexPositionNormalTexture(interpolatedPosition, interpolatedNormal, textureCoordinate);
+				}
+
+				VertexBuffer vertexBuffer = new VertexBuffer(device, typeof(VertexPositionNormalTexture), meshes[i].header.vertexCount, BufferUsage.WriteOnly);
+				vertexBuffer.SetData<VertexPositionNormalTexture>(vertices);
+
+				device.SetVertexBuffer(vertexBuffer);
+				
+				foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+				{
+					pass.Apply();
+					device.DrawPrimitives(PrimitiveType.TriangleList, 0, meshes[i].header.triangleCount);
+				}
+			}
 		}
-
-        private static void DrawAllModels(Model model, Matrix current, Matrix next)
-        {
-
-        }
-
-        public static void DrawModel(Model model)
-        {
-            VertexPositionNormalTexture[] lower;
-           for (int i = 0; i<model.meshes.Length; i++)
-            {
-               int currentTexture;
-               int currentOffsetVertex;
-                int bufferCount = 0;
-                if (model.meshes[i].texture !=0)
-                {
-                    currentTexture = model.meshes[i].texture;
-                }
-                //currentOffsetVertex = start;
-                int triCount = model.meshes[i].header.triangleCount;
-                lower = new VertexPositionNormalTexture[triCount * 3];
-                for (int j = 0; j<triCount; j++)                {
-
-                    for (int k = 0; k< 3; k++)
-                    {
-                         ;
-                    }
-                }
-            }
-        }
 
         public static void SetUp()
         {
