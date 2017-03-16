@@ -132,23 +132,14 @@ namespace Project2
 
         }
 
-        public static void Render(BasicEffect effect)
+        public static void Render(Model model, BasicEffect effect)
         {
+            Model.SetUp();
             Matrix current = new Matrix();
             Matrix next = new Matrix();
-     //       DrawAllModels(lowerModel, current, next);
+            //Model.DrawAllModels(lowerModel, current, next);
+            Model.DrawModel(model);
         }
-
-        private static void DrawAllModels(Model model, Matrix current, Matrix next) //does this go into Model Class?
-        {
-      //      DrawModel(model);
-        }
-
-        private void DrawModel(Model model) //does this go into Model Class?
-        {
-
-        }
-
     }
 }
 

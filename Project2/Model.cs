@@ -343,10 +343,30 @@ namespace Project2
 
         }
 
-        private void DrawModel()
-		{
+        public static void DrawModel(Model model)
+        {
+            VertexPositionNormalTexture[] lower;
+           for (int i = 0; i<model.meshes.Length; i++)
+            {
+               int currentTexture;
+               int currentOffsetVertex;
+                int bufferCount = 0;
+                if (model.meshes[i].texture !=0)
+                {
+                    currentTexture = model.meshes[i].texture;
+                }
+                //currentOffsetVertex = start;
+                int triCount = model.meshes[i].header.triangleCount;
+                lower = new VertexPositionNormalTexture[triCount * 3];
+                for (int j = 0; j<triCount; j++)                {
 
-		}
+                    for (int k = 0; k< 3; k++)
+                    {
+                         ;
+                    }
+                }
+            }
+        }
 
         public static void SetUp()
         {
