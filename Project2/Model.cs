@@ -348,8 +348,8 @@ namespace Project2
             VertexPositionNormalTexture[] lower;
            for (int i = 0; i<model.meshes.Length; i++)
             {
-               int currentTexture;
-               int currentOffsetVertex;
+                int currentTexture;
+                int currentOffsetVertex;
                 int bufferCount = 0;
                 if (model.meshes[i].texture !=0)
                 {
