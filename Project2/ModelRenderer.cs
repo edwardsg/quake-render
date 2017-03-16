@@ -42,7 +42,7 @@ namespace Project2
 		
 		protected override void LoadContent()
 		{
-            world = Matrix.CreateScale(.25f) * Matrix.CreateTranslation(new Vector3(0, 0, 0));
+            world = Matrix.CreateScale((float) 1 / 64) * Matrix.CreateTranslation(new Vector3(0, 0, 0));
             view = Matrix.CreateLookAt(new Vector3(0, 0, 100), Vector3.Zero, Vector3.Up);
             projection = Matrix.CreatePerspectiveFieldOfView(.9f, GraphicsDevice.Viewport.AspectRatio, .01f, 200.0f);
             spriteBatch = new SpriteBatch(GraphicsDevice);

@@ -149,14 +149,14 @@ namespace Project2
 
         }
 
-        public void Update()
+        public void Update(float secondsElapsed)
         {
+			float frameFraction = secondsElapsed * animations[currentAnimation].fps;
 
-        }
-
-        public void UpdateFrame()
-        {
-
+			lowerModel.UpdateFrame(frameFraction);
+			upperModel.UpdateFrame(frameFraction);
+			headModel.UpdateFrame(frameFraction);
+			gunModel.UpdateFrame(frameFraction);
         }
 
         public void Render(BasicEffect effect)
@@ -164,7 +164,7 @@ namespace Project2
 			Matrix current = Matrix.Identity;
 			Matrix next = Matrix.Identity;
 
-			headModel.DrawAllModels(current, next, effect);
+			upperModel.DrawAllModels(current, next, effect);
         }
     }
 }

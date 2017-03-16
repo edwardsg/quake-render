@@ -92,7 +92,7 @@ namespace Project2
 		private int nextFrame;
 		private int currentFrame;
 
-		float interpolation;
+		float interpolation = 0;
 
 		public int StartFrame
 		{
@@ -329,6 +329,21 @@ namespace Project2
 			}
 
 			return texture;
+		}
+
+		public void UpdateFrame(float frameFraction)
+		{
+			interpolation += frameFraction;
+
+			if (interpolation > 1)
+			{
+				interpolation = 0;
+				currentFrame = nextFrame;
+				++nextFrame;
+
+				if (nextFrame >= endFrame)
+					nextFrame = startFrame;
+			}
 		}
 
         public void DrawAllModels(Matrix current, Matrix next, BasicEffect effect)
