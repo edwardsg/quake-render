@@ -23,13 +23,6 @@ namespace Project2
 
         BasicEffect effect;
 
-        VertexPositionNormalTexture[] lower;
-        VertexPositionNormalTexture[] upper;
-        VertexPositionNormalTexture[] gun;
-        VertexPositionNormalTexture[] head;
-
-        Model lowerModel;
-
 		MD3 lara;
 
 		public ModelRenderer()
@@ -49,16 +42,12 @@ namespace Project2
 		
 		protected override void LoadContent()
 		{
-            world = Matrix.CreateTranslation(new Vector3(0, 0, 0));
+            world = Matrix.CreateScale(.25f) * Matrix.CreateTranslation(new Vector3(0, 0, 0));
             view = Matrix.CreateLookAt(new Vector3(0, 0, 100), Vector3.Zero, Vector3.Up);
             projection = Matrix.CreatePerspectiveFieldOfView(.9f, GraphicsDevice.Viewport.AspectRatio, .01f, 200.0f);
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-			//StreamReader reader = new StreamReader(File.Open("model.txt", FileMode.Open));
-
-			lara = new MD3("models\\players\\laracroft\\animation.cfg");
-
-			lowerModel = new Model(GraphicsDevice, "models\\players\\laracroft\\head.md3", "models\\players\\laracroft\\head_default.skin");
+			lara = new MD3(GraphicsDevice, "model.txt");
 		}
 
 		
@@ -108,8 +97,8 @@ namespace Project2
 
 		protected override void Draw(GameTime gameTime)
 		{
-			world = Matrix.CreateScale((float) 1 / 64);
             effect.World = world;
+			effect.View = view;
             effect.Projection = projection;
 
 			effect.LightingEnabled = true;
@@ -122,8 +111,7 @@ namespace Project2
 
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            MD3.Render(lowerModel, effect);
-
+			lara.Render(effect);
 
             base.Draw(gameTime);
 		}

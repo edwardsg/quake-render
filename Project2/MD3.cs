@@ -53,16 +53,43 @@ namespace Project2
 			public int fps;
 		}
 
-        Model lowerModel;
-        Model upperModel;
-        Model headModel;
-        Model gunModel;
-        Animation[] animations = new Animation[(int) AnimationType.MAX_ANIMATIONS];
-        int currentAnimation;
+        private Model lowerModel;
+        private Model upperModel;
+        private Model headModel;
+        private Model gunModel;
 
-		public MD3(string animationPath)
+        private Animation[] animations = new Animation[(int) AnimationType.MAX_ANIMATIONS];
+        private int currentAnimation;
+
+		GraphicsDevice device;
+
+		public MD3(GraphicsDevice device, string modelFilePath)
 		{
+			this.device = device;
+
+			StreamReader reader = new StreamReader(File.Open(modelFilePath, FileMode.Open));
+
+			string lowerModelPath = reader.ReadLine();
+			string lowerSkinPath = reader.ReadLine();
+			string upperModelPath = reader.ReadLine();
+			string upperSkinPath = reader.ReadLine();
+			string headModelPath = reader.ReadLine();
+			string headSkinPath = reader.ReadLine();
+			string gunModelPath = reader.ReadLine();
+			string gunSkinPath = reader.ReadLine();
+			string animationPath = reader.ReadLine();
+
+			Model.SetUp(device);
+
+			lowerModel = new Model(lowerModelPath, lowerSkinPath);
+			upperModel = new Model(upperModelPath, upperSkinPath);
+			headModel = new Model(headModelPath, headSkinPath);
+			gunModel = new Model(gunModelPath, gunSkinPath);
+
 			LoadAnimation(animationPath);
+
+			currentAnimation = (int)AnimationType.LEGS_SWIM;
+			SetAnimation();
 		}
 
         public void LoadAnimation(string animationPath)
@@ -132,13 +159,12 @@ namespace Project2
 
         }
 
-        public static void Render(Model model, BasicEffect effect)
+        public void Render(BasicEffect effect)
         {
-            Model.SetUp();
-            Matrix current = new Matrix();
-            Matrix next = new Matrix();
-			//Model.DrawAllModels(lowerModel, current, next);
-			model.DrawModel(current, next, effect);
+			Matrix current = Matrix.Identity;
+			Matrix next = Matrix.Identity;
+
+			headModel.DrawAllModels(current, next, effect);
         }
     }
 }

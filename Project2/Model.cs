@@ -79,12 +79,13 @@ namespace Project2
 			public int texture;
 		};
 
-		MD3Header header;
-		Frame[] frames;
-		Tag[] tags;
-		Mesh[] meshes;
-		Model[] links;
-		GraphicsDevice device;
+		private static GraphicsDevice device;
+
+		private MD3Header header;
+		private Frame[] frames;
+		private Tag[] tags;
+		private Mesh[] meshes;
+		private Model[] links;
 
 		private int startFrame;
 		private int endFrame;
@@ -121,16 +122,15 @@ namespace Project2
 		{
 			set
 			{
-				CurrentFrame = value;
+				currentFrame = value;
 			}
 		}
 
 		Texture2D[] textures;
 		static Vector3[,] normals = new Vector3[256, 256];
 
-		public Model(GraphicsDevice device, string modelPath, string skinPath)
+		public Model(string modelPath, string skinPath)
 		{
-			this.device = device;
 			LoadModel(modelPath);
 			LoadSkin(skinPath);
 		}
@@ -198,6 +198,8 @@ namespace Project2
 											  0, 0, 0, 1);
 			}
 
+			textures = new Texture2D[header.meshCount];
+
 			// Meshes
 			currentOffset = header.meshOffset;
 			for (int i = 0; i < meshes.Length; ++i)
@@ -224,8 +226,6 @@ namespace Project2
 				meshes[i].header.textureVectorOffset = reader.ReadInt32();
 				meshes[i].header.vertexOffset = reader.ReadInt32();
 				meshes[i].header.meshSize = reader.ReadInt32();
-
-				textures = new Texture2D[meshes[i].header.skinCount];
 
 				// Skins
 				reader.BaseStream.Seek(currentOffset + meshes[i].header.skinOffset, SeekOrigin.Begin);
@@ -331,9 +331,9 @@ namespace Project2
 			return texture;
 		}
 
-        private static void DrawAllModels(Model model, Matrix current, Matrix next, BasicEffect effect)
+        public void DrawAllModels(Matrix current, Matrix next, BasicEffect effect)
         {
-
+			DrawModel(current, next, effect);
         }
 
 		public void DrawModel(Matrix current, Matrix next, BasicEffect effect)
@@ -386,8 +386,10 @@ namespace Project2
 			}
 		}
 
-        public static void SetUp()
+        public static void SetUp(GraphicsDevice device)
         {
+			Model.device = device;
+
             for (int i = 0; i < 256; i++)
             {
                 for (int j = 0; j < 256; j++)
