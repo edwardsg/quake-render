@@ -10,18 +10,21 @@ namespace Project2
 	{
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
-
-        float rotateY;
-        Matrix rotationMatrix;
+        BasicEffect effect;
+		
         bool enterPressed = false;
         int currentAnimation = 0;
-        Matrix world;
-        Matrix view;
-        Matrix projection;
-        Vector3 trans;
-        Matrix position;
 
-        BasicEffect effect;
+		Vector3 cameraPosition = new Vector3(0, 0, 100);
+		float cameraRotateSpeed = 0.01f;
+
+		float scale = (float) 1 / 64;
+
+		float viewAngle = .9f;
+		float nearPlane = .01f;
+		float farPlane = 200;
+
+        float cameraRotation = 0;
 
 		MD3 lara;
 
@@ -42,9 +45,6 @@ namespace Project2
 		
 		protected override void LoadContent()
 		{
-            world = Matrix.CreateScale((float) 1 / 64) * Matrix.CreateTranslation(new Vector3(0, 0, 0));
-            view = Matrix.CreateLookAt(new Vector3(0, 0, 100), Vector3.Zero, Vector3.Up);
-            projection = Matrix.CreatePerspectiveFieldOfView(.9f, GraphicsDevice.Viewport.AspectRatio, .01f, 200.0f);
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
 			lara = new MD3(GraphicsDevice, "model.txt");
@@ -76,28 +76,28 @@ namespace Project2
                 enterPressed = false;
             }
 
-            if (keyboard.IsKeyDown(Keys.Left)) 
-            {
-                rotateY -= 0.1f * gameTime.ElapsedGameTime.Milliseconds;
-            }
+			if (keyboard.IsKeyDown(Keys.Left))
+				cameraRotation = -cameraRotateSpeed * gameTime.ElapsedGameTime.Milliseconds;
+			else if (keyboard.IsKeyDown(Keys.Right))
+				cameraRotation = cameraRotateSpeed * gameTime.ElapsedGameTime.Milliseconds;
+			else
+				cameraRotation = 0;
 
-            if (keyboard.IsKeyDown(Keys.Right)) 
-            {
-                rotateY += 0.1f  * gameTime.ElapsedGameTime.Milliseconds;
-            }
-
-            rotationMatrix = Matrix.CreateFromYawPitchRoll(rotateY, 0, 0);
-
-            trans += rotateY * rotationMatrix.Right;
-            position = Matrix.CreateTranslation(trans);
-            effect.View = view * position * rotationMatrix;
+			lara.Update((float) gameTime.ElapsedGameTime.Milliseconds / 1000);
 
             base.Update(gameTime);
 		}
 
 		protected override void Draw(GameTime gameTime)
 		{
-            effect.World = world;
+			Matrix cameraRotateY = Matrix.CreateRotationY(cameraRotation);
+			cameraPosition = Vector3.Transform(cameraPosition, cameraRotateY);
+
+			Matrix world = Matrix.CreateScale(scale);
+			Matrix view = Matrix.CreateLookAt(cameraPosition, Vector3.Zero, Vector3.Up);
+			Matrix projection = Matrix.CreatePerspectiveFieldOfView(viewAngle, GraphicsDevice.Viewport.AspectRatio, nearPlane, farPlane);
+			
+			effect.World = world;
 			effect.View = view;
             effect.Projection = projection;
 
