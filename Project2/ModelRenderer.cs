@@ -37,6 +37,8 @@ namespace Project2
 		
 		protected override void Initialize()
 		{
+			Window.Title = "Quake Model Renderer";
+
 			effect = new BasicEffect(GraphicsDevice);
 
 			base.Initialize();

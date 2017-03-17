@@ -377,8 +377,8 @@ namespace Project2
 					m = tags[currentTag].rotation;
 					mNext = tags[nextTag].rotation;
 
-					m *= current;
-					mNext *= next;
+					m *= current * Matrix.CreateTranslation(tags[currentTag].position);
+					mNext *= next * Matrix.CreateTranslation(tags[nextTag].position);
 
 					links[i].DrawAllModels(m, mNext, effect);
 				}
@@ -430,7 +430,7 @@ namespace Project2
 					Vector3 interpolatedNormal = Vector3.Lerp(currentNormal, nextNormal, interpolation);
 
 					// Get texture coordinates for this vertex
-					Vector2 textureCoordinate = meshes[i].textureCoordinates[j + currentOffset];
+					Vector2 textureCoordinate = meshes[i].textureCoordinates[j];
 
 					// Add new vertex object to list
 					vertices[j] = new VertexPositionNormalTexture(interpolatedPosition, interpolatedNormal, textureCoordinate);
