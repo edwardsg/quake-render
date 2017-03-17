@@ -295,7 +295,7 @@ namespace Project2
 					}
 					else
 					{
-						Console.WriteLine("aaaahh");
+						Console.Error.WriteLine("Error loading texture");
 					}
 				}
 			}
@@ -354,19 +354,17 @@ namespace Project2
             for (int i = 0; i < tags.Length; i++)
             {
                 if (tagName.Equals(tags[i].name) )
-                {
-                    links[i] = model; 
-                }
+                    links[i] = model;
             }
         }
 
 		// Draws this model and all those linked to it
         public void DrawAllModels(Matrix current, Matrix next, BasicEffect effect)
         {
+			// Draw this model
 			DrawModel(current, next, effect);
 			
-			Matrix m;
-			Matrix mNext;
+			// Recursively draw all models connected to this one by tags
 			for (int i = 0; i < header.tagCount; ++i)
 			{
 				if (links[i] != null)
@@ -374,13 +372,15 @@ namespace Project2
 					int currentTag = currentFrame * header.tagCount + i;
 					int nextTag = nextFrame * header.tagCount + i;
 
-					m = tags[currentTag].rotation;
-					mNext = tags[nextTag].rotation;
+					// Find relative rotation and position of next model
+					Matrix rotationPosition = tags[currentTag].rotation;
+					Matrix rotationPositionNext = tags[nextTag].rotation;
 
-					m *= current * Matrix.CreateTranslation(tags[currentTag].position);
-					mNext *= next * Matrix.CreateTranslation(tags[nextTag].position);
+					rotationPosition *= current * Matrix.CreateTranslation(tags[currentTag].position);
+					rotationPositionNext *= next * Matrix.CreateTranslation(tags[nextTag].position);
 
-					links[i].DrawAllModels(m, mNext, effect);
+					// Draw next model recursively
+					links[i].DrawAllModels(rotationPosition, rotationPositionNext, effect);
 				}
 			}
 		}
@@ -440,6 +440,7 @@ namespace Project2
 				VertexBuffer vertexBuffer = new VertexBuffer(device, typeof(VertexPositionNormalTexture), meshes[i].header.vertexCount, BufferUsage.WriteOnly);
 				vertexBuffer.SetData(vertices);
 
+				// Use the vertex indices from the mesh as an index buffer
 				IndexBuffer indexBuffer = new IndexBuffer(device, typeof(int), meshes[i].header.triangleCount * 3, BufferUsage.WriteOnly);
 				indexBuffer.SetData<int>(meshes[i].triangleVertices);
 

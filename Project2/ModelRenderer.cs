@@ -4,15 +4,19 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Project2
 {
+	// Handles keyboard input and program initialization
 	public class ModelRenderer : Game
 	{
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
         BasicEffect effect;
 
-		// Camera starting position and rotation speed
+		// Camera starting position, rotation and zoom speed
 		Vector3 cameraPosition = new Vector3(0, 0, 100);
-		float cameraRotateSpeed = 0.01f;
+		float cameraRotateSpeed = .01f;
+		float cameraMoveSpeed = .02f;
+		float minCameraDistance = 10;
+		float maxCameraDistance = 100;
 
 		// Scale of model
 		float scale = (float) 1 / 64;
@@ -23,8 +27,8 @@ namespace Project2
 		float farPlane = 200;
 		
         bool enterPressed = false;
-        int currentAnimation = 0;
         float cameraRotation = 0;
+		float cameraZoom = 0;
 
 		// Player model
 		MD3 player;
@@ -89,6 +93,14 @@ namespace Project2
 			else
 				cameraRotation = 0;
 
+			// Camera zoom - up and down arrows
+			if (keyboard.IsKeyDown(Keys.Up) && cameraPosition.Length() > minCameraDistance)
+				cameraZoom = cameraMoveSpeed;
+			else if (keyboard.IsKeyDown(Keys.Down) && cameraPosition.Length() < maxCameraDistance)
+				cameraZoom = -cameraMoveSpeed;
+			else
+				cameraZoom = 0;
+
 			player.Update(milliPassed / 1000);
 
             base.Update(gameTime);
@@ -98,6 +110,7 @@ namespace Project2
 		{
 			// Rotate camera around origin
 			Matrix cameraRotateY = Matrix.CreateRotationY(cameraRotation);
+			cameraPosition += cameraPosition * -cameraZoom;
 			cameraPosition = Vector3.Transform(cameraPosition, cameraRotateY);
 
 			// Set up scale, camera direction, and perspective projection
