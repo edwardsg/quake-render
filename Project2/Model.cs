@@ -440,13 +440,17 @@ namespace Project2
 				VertexBuffer vertexBuffer = new VertexBuffer(device, typeof(VertexPositionNormalTexture), meshes[i].header.vertexCount, BufferUsage.WriteOnly);
 				vertexBuffer.SetData(vertices);
 
+				IndexBuffer indexBuffer = new IndexBuffer(device, typeof(int), meshes[i].header.triangleCount * 3, BufferUsage.WriteOnly);
+				indexBuffer.SetData<int>(meshes[i].triangleVertices);
+
 				device.SetVertexBuffer(vertexBuffer);
+				device.Indices = indexBuffer;
 				
 				// Draw current mesh
 				foreach (EffectPass pass in effect.CurrentTechnique.Passes)
 				{
 					pass.Apply();
-					device.DrawPrimitives(PrimitiveType.TriangleList, 0, meshes[i].header.triangleCount);
+					device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, meshes[i].header.triangleCount);
 				}
 			}
 		}
