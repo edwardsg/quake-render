@@ -90,7 +90,11 @@ namespace Project2
 
 			currentAnimation = (int)AnimationType.LEGS_SWIM;
 			SetAnimation();
-		}
+
+            lowerModel.Link("tag_torso", upperModel);
+            upperModel.Link("tag_head", headModel);
+            upperModel.Link("tag_weapon", gunModel);
+        }
 
         public void LoadAnimation(string animationPath)
         {
@@ -128,7 +132,7 @@ namespace Project2
 				lowerModel.NextFrame = animations[currentAnimation].firstFrame;
 				lowerModel.CurrentFrame = animations[currentAnimation].firstFrame + 1;
 			}
-			else if (currentAnimation <= (int)AnimationType.TORSO_STAND2)
+			else if (currentAnimation <= (int)AnimationType.TORSO_STAND2 || currentAnimation > (int)AnimationType.BOTH_DEAD3)
 			{
 				upperModel.StartFrame = animations[currentAnimation].firstFrame;
 				upperModel.EndFrame = animations[currentAnimation].totalFrames - 1;
@@ -164,7 +168,7 @@ namespace Project2
 			Matrix current = Matrix.Identity;
 			Matrix next = Matrix.Identity;
 
-			upperModel.DrawAllModels(current, next, effect);
+			lowerModel.DrawAllModels(current, next, effect);
         }
     }
 }

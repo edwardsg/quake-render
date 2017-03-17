@@ -61,6 +61,7 @@ namespace Project2
 		protected override void Update(GameTime gameTime)
 		{
             KeyboardState keyboard = Keyboard.GetState();
+            float milliPassed = gameTime.ElapsedGameTime.Milliseconds;
 
             if (keyboard.IsKeyDown(Keys.Enter))
             {
@@ -78,12 +79,12 @@ namespace Project2
 
             if (keyboard.IsKeyDown(Keys.Left)) 
             {
-                rotateY -= 0.1f * gameTime.ElapsedGameTime.Milliseconds;
+                rotateY -= 0.1f * milliPassed;
             }
 
             if (keyboard.IsKeyDown(Keys.Right)) 
             {
-                rotateY += 0.1f  * gameTime.ElapsedGameTime.Milliseconds;
+                rotateY += 0.1f  * milliPassed;
             }
 
             rotationMatrix = Matrix.CreateFromYawPitchRoll(rotateY, 0, 0);
@@ -91,6 +92,8 @@ namespace Project2
             trans += rotateY * rotationMatrix.Right;
             position = Matrix.CreateTranslation(trans);
             effect.View = view * position * rotationMatrix;
+
+            lara.Update(milliPassed/1000.0f);
 
             base.Update(gameTime);
 		}
