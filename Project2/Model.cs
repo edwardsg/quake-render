@@ -456,6 +456,9 @@ namespace Project2
 					pass.Apply();
 					device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, meshes[i].header.triangleCount);
 				}
+
+				vertexBuffer.Dispose();
+				indexBuffer.Dispose();
 			}
 		}
 

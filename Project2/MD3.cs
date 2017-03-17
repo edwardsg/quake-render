@@ -120,10 +120,14 @@ namespace Project2
 				else
 					reader.ReadLine();
 			}
-        }
+
+			int legsTorsoDifference = animations[(int)AnimationType.LEGS_WALKCR].firstFrame - animations[(int)AnimationType.TORSO_GESTURE].firstFrame;
+			for (int i = (int)AnimationType.LEGS_WALKCR; i < (int)AnimationType.MAX_ANIMATIONS; ++i)
+				animations[i].firstFrame -= legsTorsoDifference;
+		}
 
 		// Sets animation data in appropriate models based on current animation being used
-        public void SetAnimation()
+		public void SetAnimation()
         {
 			// Animations that apply for both upper and lower models
 			if (currentAnimation <= (int)AnimationType.BOTH_DEAD3)
@@ -153,19 +157,19 @@ namespace Project2
 					upperModel.NextFrame = upperModel.StartFrame;
 
 				// Reset legs to default
-				lowerModel.StartFrame = 0;
-				lowerModel.EndFrame = 0;
-				lowerModel.CurrentFrame = 0;
-				lowerModel.NextFrame = 0;
+				lowerModel.StartFrame = animations[(int) AnimationType.LEGS_IDLE].firstFrame;
+				lowerModel.EndFrame = animations[(int)AnimationType.LEGS_IDLE].firstFrame;
+				lowerModel.CurrentFrame = animations[(int)AnimationType.LEGS_IDLE].firstFrame;
+				lowerModel.NextFrame = animations[(int)AnimationType.LEGS_IDLE].firstFrame;
 			}
 			// Only lower model
 			else
 			{
 				// Reset torso to default
-				upperModel.StartFrame = 0;
-				upperModel.EndFrame = 0;
-				upperModel.CurrentFrame = 0;
-				upperModel.NextFrame = 0;
+				upperModel.StartFrame = animations[(int)AnimationType.LEGS_IDLE].firstFrame;
+				upperModel.EndFrame = animations[(int)AnimationType.LEGS_IDLE].firstFrame;
+				upperModel.CurrentFrame = animations[(int)AnimationType.LEGS_IDLE].firstFrame;
+				upperModel.NextFrame = animations[(int)AnimationType.LEGS_IDLE].firstFrame;
 
 				lowerModel.StartFrame = animations[currentAnimation].firstFrame;
 				lowerModel.EndFrame = lowerModel.StartFrame + animations[currentAnimation].totalFrames;

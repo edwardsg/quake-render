@@ -12,7 +12,7 @@ namespace Project2
         BasicEffect effect;
 
 		// Window size
-		int windowWidth = 800;
+		int windowWidth = 1600;
 		int windowHeight = 800;
 
 		// Camera starting position, rotation and zoom speed
@@ -34,8 +34,9 @@ namespace Project2
         float cameraRotation = 0;
 		float cameraZoom = 0;
 
-		// Player model
-		MD3 player;
+		// Player models
+		MD3[] players;
+		Vector3[] playerPositions;
 
 		public ModelRenderer()
 		{
@@ -67,8 +68,9 @@ namespace Project2
 		{
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-			// Load model from file model.txt
-			player = new MD3(effect, "modelSarge.txt");
+			// Load player models from files
+			players = new MD3[2] { new MD3(effect, "model.txt"), new MD3(effect, "modelSarge.txt") };
+			playerPositions = new Vector3[2] { new Vector3(-20, 0, 0), new Vector3(20, 0, 0) };
 		}
 
 		protected override void UnloadContent()
@@ -93,7 +95,8 @@ namespace Project2
                 if (enterPressed == false)
                 {
                     enterPressed = true;
-					player.IncrementAnimation();
+					foreach (MD3 player in players)
+						player.IncrementAnimation();
                 }
             }
 
@@ -116,7 +119,8 @@ namespace Project2
 			else
 				cameraZoom = 0;
 
-			player.Update(milliPassed / 1000);
+			foreach (MD3 player in players)
+				player.Update(milliPassed / 1000);
 
             base.Update(gameTime);
 		}
@@ -133,7 +137,6 @@ namespace Project2
 			Matrix view = Matrix.CreateLookAt(cameraPosition, Vector3.Zero, Vector3.Up);
 			Matrix projection = Matrix.CreatePerspectiveFieldOfView(viewAngle, GraphicsDevice.Viewport.AspectRatio, nearPlane, farPlane);
 			
-			effect.World = world;
 			effect.View = view;
             effect.Projection = projection;
 
@@ -148,8 +151,12 @@ namespace Project2
 
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
-			// Render player model
-			player.Render(effect);
+			// Render player models
+			for (int i = 0; i < players.Length; ++i)
+			{
+				effect.World = world * Matrix.CreateTranslation(playerPositions[i]);
+				players[i].Render(effect);
+			}
 
             base.Draw(gameTime);
 		}
