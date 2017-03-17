@@ -94,9 +94,10 @@ namespace Project2
 		private Model[] links;
 		Texture2D[] textures;		// All textures used by this model
 
-		static Vector3[,] normals;	// 65,536 precomputed normals
+		static Vector3[,] normals;  // 65,536 precomputed normals
 
 		// Animation information
+		MD3.Animation animation;
 		private int startFrame;
 		private int endFrame;
 		private int nextFrame;
@@ -350,6 +351,18 @@ namespace Project2
 				if (nextFrame >= endFrame)
 					nextFrame = startFrame;
 			}
+		}
+
+		public void SetAnimation(MD3.Animation animation)
+		{
+			this.animation = animation;
+
+			StartFrame = animation.firstFrame;
+			EndFrame = StartFrame + animation.totalFrames;
+			CurrentFrame = StartFrame;
+			NextFrame = StartFrame + 1;
+			if (NextFrame >= EndFrame)
+				NextFrame = StartFrame;
 		}
 
 		// Creates references to other models linked to this one by tags

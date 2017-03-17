@@ -22,9 +22,6 @@ namespace Project2
 		float minCameraDistance = 10;
 		float maxCameraDistance = 300;
 
-		// Scale of model
-		float scale = (float) 1 / 64;
-
 		// Projection
 		float viewAngle = .9f;
 		float nearPlane = .01f;
@@ -70,7 +67,9 @@ namespace Project2
 
 			// Load player models from files
 			players = new MD3[2] { new MD3(effect, "model.txt"), new MD3(effect, "modelSarge.txt") };
-			playerPositions = new Vector3[2] { new Vector3(-20, 0, 0), new Vector3(20, 0, 0) };
+
+			// Set starting player positions
+			playerPositions = new Vector3[2] { new Vector3(-30, 0, 0), new Vector3(30, 0, 0) };
 		}
 
 		protected override void UnloadContent()
@@ -95,6 +94,8 @@ namespace Project2
                 if (enterPressed == false)
                 {
                     enterPressed = true;
+
+					// Increment animations for all models
 					foreach (MD3 player in players)
 						player.IncrementAnimation();
                 }
@@ -154,6 +155,7 @@ namespace Project2
 			// Render player models
 			for (int i = 0; i < players.Length; ++i)
 			{
+				// Move to respective positions then render
 				effect.World = world * Matrix.CreateTranslation(playerPositions[i]);
 				players[i].Render(effect);
 			}

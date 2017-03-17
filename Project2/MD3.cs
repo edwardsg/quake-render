@@ -43,7 +43,7 @@ namespace Project2
         };
 
 		// Information for a single animation
-		struct Animation
+		public struct Animation
 		{
 			public int firstFrame;		// Starting frame of animation
 			public int totalFrames;		// Number of frames in animation
@@ -121,6 +121,7 @@ namespace Project2
 					reader.ReadLine();
 			}
 
+			// Fix differences for leg animations
 			int legsTorsoDifference = animations[(int)AnimationType.LEGS_WALKCR].firstFrame - animations[(int)AnimationType.TORSO_GESTURE].firstFrame;
 			for (int i = (int)AnimationType.LEGS_WALKCR; i < (int)AnimationType.MAX_ANIMATIONS; ++i)
 				animations[i].firstFrame -= legsTorsoDifference;
@@ -132,51 +133,20 @@ namespace Project2
 			// Animations that apply for both upper and lower models
 			if (currentAnimation <= (int)AnimationType.BOTH_DEAD3)
 			{
-				upperModel.StartFrame = animations[currentAnimation].firstFrame;
-				upperModel.EndFrame = upperModel.StartFrame + animations[currentAnimation].totalFrames;
-				upperModel.CurrentFrame = upperModel.StartFrame;
-				upperModel.NextFrame = upperModel.StartFrame + 1;
-				if (upperModel.NextFrame >= upperModel.EndFrame)
-					upperModel.NextFrame = upperModel.StartFrame;
-
-				lowerModel.StartFrame = animations[currentAnimation].firstFrame;
-				lowerModel.EndFrame = lowerModel.StartFrame + animations[currentAnimation].totalFrames;
-				lowerModel.CurrentFrame = lowerModel.StartFrame;
-				lowerModel.NextFrame = lowerModel.StartFrame + 1;
-				if (lowerModel.NextFrame >= lowerModel.EndFrame)
-					lowerModel.NextFrame = lowerModel.StartFrame;
+				upperModel.SetAnimation(animations[currentAnimation]);
+				lowerModel.SetAnimation(animations[currentAnimation]);
 			}
 			// Animations that only affect upper model
 			else if (currentAnimation <= (int)AnimationType.TORSO_STAND2)
 			{
-				upperModel.StartFrame = animations[currentAnimation].firstFrame;
-				upperModel.EndFrame = upperModel.StartFrame + animations[currentAnimation].totalFrames;
-				upperModel.CurrentFrame = upperModel.StartFrame;
-				upperModel.NextFrame = upperModel.StartFrame + 1;
-				if (upperModel.NextFrame >= upperModel.EndFrame)
-					upperModel.NextFrame = upperModel.StartFrame;
-
-				// Reset legs to default
-				lowerModel.StartFrame = animations[(int) AnimationType.LEGS_IDLE].firstFrame;
-				lowerModel.EndFrame = animations[(int)AnimationType.LEGS_IDLE].firstFrame;
-				lowerModel.CurrentFrame = animations[(int)AnimationType.LEGS_IDLE].firstFrame;
-				lowerModel.NextFrame = animations[(int)AnimationType.LEGS_IDLE].firstFrame;
+				upperModel.SetAnimation(animations[currentAnimation]);
+				lowerModel.SetAnimation(animations[(int) AnimationType.LEGS_IDLE]);
 			}
 			// Only lower model
 			else
 			{
-				// Reset torso to default
-				upperModel.StartFrame = animations[(int)AnimationType.LEGS_IDLE].firstFrame;
-				upperModel.EndFrame = animations[(int)AnimationType.LEGS_IDLE].firstFrame;
-				upperModel.CurrentFrame = animations[(int)AnimationType.LEGS_IDLE].firstFrame;
-				upperModel.NextFrame = animations[(int)AnimationType.LEGS_IDLE].firstFrame;
-
-				lowerModel.StartFrame = animations[currentAnimation].firstFrame;
-				lowerModel.EndFrame = lowerModel.StartFrame + animations[currentAnimation].totalFrames;
-				lowerModel.CurrentFrame = lowerModel.StartFrame;
-				lowerModel.NextFrame = lowerModel.StartFrame + 1;
-				if (lowerModel.NextFrame >= lowerModel.EndFrame)
-					lowerModel.NextFrame = lowerModel.StartFrame;
+				upperModel.SetAnimation(animations[(int)AnimationType.TORSO_STAND]);
+				lowerModel.SetAnimation(animations[currentAnimation]);
 			}
         }
 
