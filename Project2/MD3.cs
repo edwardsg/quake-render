@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.IO;
 
 namespace Project2
 {
+	// Contains an entire MD3 character model made up of multiple models
     class MD3
     {
+		// All types of animation in MD3
         enum AnimationType
         {
             BOTH_DEATH1 = 0,
@@ -45,30 +42,35 @@ namespace Project2
             MAX_ANIMATIONS
         };
 
+		// Information for a single animation
 		struct Animation
 		{
-			public int firstFrame;
-			public int totalFrames;
-			public int loopingFrames;
-			public int fps;
+			public int firstFrame;		// Starting frame of animation
+			public int totalFrames;		// Number of frames in animation
+			public int loopingFrames;	// Unused
+			public int fps;				// Frames per second
 		}
-
+		
+		// Submodels
         private Model lowerModel;
         private Model upperModel;
         private Model headModel;
         private Model gunModel;
 
+		// All animations for this model
         private Animation[] animations = new Animation[(int) AnimationType.MAX_ANIMATIONS];
         private int currentAnimation;
 
 		GraphicsDevice device;
 
+		// Loads model data from file containing paths to all models, skins, and animation
 		public MD3(GraphicsDevice device, string modelFilePath)
 		{
 			this.device = device;
 
 			StreamReader reader = new StreamReader(File.Open(modelFilePath, FileMode.Open));
 
+			// Geth file paths
 			string lowerModelPath = reader.ReadLine();
 			string lowerSkinPath = reader.ReadLine();
 			string upperModelPath = reader.ReadLine();
@@ -81,14 +83,16 @@ namespace Project2
 
 			Model.SetUp(device);
 
+			// Create models from files
 			lowerModel = new Model(lowerModelPath, lowerSkinPath);
 			upperModel = new Model(upperModelPath, upperSkinPath);
 			headModel = new Model(headModelPath, headSkinPath);
 			gunModel = new Model(gunModelPath, gunSkinPath);
 
+			// Load animation data
 			LoadAnimation(animationPath);
 
-			currentAnimation = (int)AnimationType.LEGS_SWIM;
+			currentAnimation = (int) AnimationType.BOTH_DEATH1;
 			SetAnimation();
 
             lowerModel.Link("tag_torso", upperModel);
@@ -96,21 +100,30 @@ namespace Project2
             upperModel.Link("tag_weapon", gunModel);
         }
 
+		// Loads animation data from file
         public void LoadAnimation(string animationPath)
         {
 			StreamReader reader = new StreamReader(File.Open(animationPath, FileMode.Open));
 
 			string[] numbers;
 
-			for (int i = 0; i < animations.Length; ++i)
+			// Loop through all lines, ignoring anything but those with numbers
+			int index = 0;
+			while (index < animations.Length)
 			{
 				if (Char.IsDigit((char)reader.Peek()))
 				{
-					numbers = reader.ReadLine().Split(' ');
-					animations[i].firstFrame = Convert.ToInt32(numbers[0]);
-					animations[i].totalFrames = Convert.ToInt32(numbers[1]);
-					animations[i].loopingFrames = Convert.ToInt32(numbers[2]);
-					animations[i].fps = Convert.ToInt32(numbers[3]);
+					numbers = reader.ReadLine().Split('\t');
+					animations[index].firstFrame = Convert.ToInt32(numbers[0]);
+					animations[index].totalFrames = Convert.ToInt32(numbers[1]);
+					animations[index].loopingFrames = Convert.ToInt32(numbers[2]);
+					animations[index].fps = Convert.ToInt32(numbers[3]);
+
+					++index;
+				}
+				else
+				{
+					reader.ReadLine();
 				}
 			}
 
@@ -118,41 +131,48 @@ namespace Project2
 				animations[i].firstFrame -= animations[(int) AnimationType.TORSO_GESTURE].firstFrame;
         }
 
+		// Sets animation data in appropriate models based on current animation being used
         public void SetAnimation()
         {
+			// Animations that apply for both upper and lower models
 			if (currentAnimation <= (int)AnimationType.BOTH_DEAD3)
 			{
 				upperModel.StartFrame = animations[currentAnimation].firstFrame;
-				upperModel.EndFrame = animations[currentAnimation].totalFrames - 1;
-				upperModel.NextFrame = animations[currentAnimation].firstFrame;
-				upperModel.CurrentFrame = animations[currentAnimation].firstFrame + 1;
+				upperModel.EndFrame = animations[currentAnimation].totalFrames;
+				upperModel.CurrentFrame = animations[currentAnimation].firstFrame;
+				upperModel.NextFrame = (animations[currentAnimation].firstFrame + 1) % animations[currentAnimation].totalFrames;
 
 				lowerModel.StartFrame = animations[currentAnimation].firstFrame;
-				lowerModel.EndFrame = animations[currentAnimation].totalFrames - 1;
-				lowerModel.NextFrame = animations[currentAnimation].firstFrame;
-				lowerModel.CurrentFrame = animations[currentAnimation].firstFrame + 1;
+				lowerModel.EndFrame = animations[currentAnimation].totalFrames;
+				lowerModel.CurrentFrame = animations[currentAnimation].firstFrame;
+				lowerModel.NextFrame = (animations[currentAnimation].firstFrame + 1) % animations[currentAnimation].totalFrames;
 			}
-			else if (currentAnimation <= (int)AnimationType.TORSO_STAND2 || currentAnimation > (int)AnimationType.BOTH_DEAD3)
+			// Animations that only affect upper model
+			else if (currentAnimation <= (int)AnimationType.TORSO_STAND2)
 			{
 				upperModel.StartFrame = animations[currentAnimation].firstFrame;
-				upperModel.EndFrame = animations[currentAnimation].totalFrames - 1;
-				upperModel.NextFrame = animations[currentAnimation].firstFrame;
-				upperModel.CurrentFrame = animations[currentAnimation].firstFrame + 1;
+				upperModel.EndFrame = animations[currentAnimation].totalFrames;
+				upperModel.CurrentFrame = animations[currentAnimation].firstFrame;
+				upperModel.NextFrame = (animations[currentAnimation].firstFrame + 1) % animations[currentAnimation].totalFrames;
 			}
+			// Only lower model
 			else
 			{
 				lowerModel.StartFrame = animations[currentAnimation].firstFrame;
-				lowerModel.EndFrame = animations[currentAnimation].totalFrames - 1;
-				lowerModel.NextFrame = animations[currentAnimation].firstFrame;
-				lowerModel.CurrentFrame = animations[currentAnimation].firstFrame + 1;
+				lowerModel.EndFrame = animations[currentAnimation].totalFrames;
+				lowerModel.CurrentFrame = animations[currentAnimation].firstFrame;
+				lowerModel.NextFrame = (animations[currentAnimation].firstFrame + 1) % animations[currentAnimation].totalFrames;
 			}
         }
 
+		// Moves current animation along one, loops to beginning
         public void IncrementAnimation()
         {
-
+			currentAnimation = (currentAnimation + 1) % (int) AnimationType.MAX_ANIMATIONS;
+			SetAnimation();
         }
 
+		// Updates each model with amount between keyframes
         public void Update(float secondsElapsed)
         {
 			float frameFraction = secondsElapsed * animations[currentAnimation].fps;
@@ -163,6 +183,7 @@ namespace Project2
 			gunModel.UpdateFrame(frameFraction);
         }
 
+		// Renders whole player model
         public void Render(BasicEffect effect)
         {
 			Matrix current = Matrix.Identity;

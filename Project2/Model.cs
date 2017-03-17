@@ -2,13 +2,14 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.IO;
-using System.Collections.Generic;
 using Paloma;
 
 namespace Project2
 {
+	// Contains and renders an indivuidual model
 	class Model
 	{
+		// Information for entire model
 		struct MD3Header
 		{
 			public string ID;		// "IDP3"
@@ -19,21 +20,23 @@ namespace Project2
 			public int tagCount;
 			public int meshCount;
 			public int skinCount;
-			public int frameOffset;
-			public int tagOffset;
-			public int meshOffset;
+			public int frameOffset;	// Start of frame data relative to beginning of model
+			public int tagOffset;	// Start of tag data
+			public int meshOffset;	// Start of mesh data
 			public int fileSize;
 		};
 
+		// Each mesh has multiple keyframes used for animations
 		public struct Frame
 		{
-			public Vector3 minimums;
-			public Vector3 maximums;
-			public Vector3 position;
-			public float scale;
+			public Vector3 minimums;	// Bounding box minimum corner
+			public Vector3 maximums;	// Maximum corner
+			public Vector3 position;	// Origin, usually (0, 0, 0)
+			public float scale;			// Radius of bounding sphere
 			public string creator;		// 16 bytes
 		};
 
+		// Used to align separate models
 		public struct Tag
 		{
 			public string name;
@@ -41,93 +44,87 @@ namespace Project2
 			public Matrix rotation;
 		};
 
+		// Information for a specific mesh or surface within model
+		public struct MeshHeader
+		{
+			public string ID;				// 4 bytes
+			public string name;				// 64 bytes
+			public int flags;
+			public int frameCount;
+			public int skinCount;
+			public int vertexCount;
+			public int triangleCount;
+			public int triangleOffset;		// Start of triangle data relative to start of mesh
+			public int skinOffset;			// Start of skin data
+			public int textureVectorOffset;	// Start of texture coordinate data
+			public int vertexOffset;		// Start of vertex data
+			public int meshSize;
+		};
+
+		// Piece of model - also called surface
+		public struct Mesh
+		{
+			public MeshHeader header;
+			public Skin[] skins;				// Skins used for this mesh
+			public int[] triangleVertices;		// Offsets into vertices - 3 * number of triangles
+			public Vector2[] textureCoordinates;// Coordinates in texture for each vertex
+			public Vertex[] vertices;			// All vertices in mesh with normals
+			public int texture;					// Index of texture used
+		};
+
+		// Made up of textures - also called shader
 		public struct Skin
 		{
 			public string name;
 			public int index;
 		};
 
+		// Vertex within a mesh
 		public struct Vertex
 		{
-			public Vector3 vertex;
-			public byte[] normal;
-		};
-
-		public struct MeshHeader
-		{
-			public string ID;	// 4 bytes
-			public string name;	// 64 bytes
-			public int flags;
-			public int frameCount;
-			public int skinCount;
-			public int vertexCount;
-			public int triangleCount;
-			public int triangleOffset;
-			public int skinOffset;
-			public int textureVectorOffset;
-			public int vertexOffset;
-			public int meshSize;
-		};
-
-		public struct Mesh
-		{
-			public MeshHeader header;
-			public Skin[] skins;
-			public int[] triangleVertices;
-			public Vector2[] textureCoordinates;
-			public Vertex[] vertices;
-			public int texture;
+			public Vector3 vertex;	// Position
+			public byte[] normal;	// Vertex normal encoded as index into precomputed normals
 		};
 
 		private static GraphicsDevice device;
 
+		// All model data
 		private MD3Header header;
 		private Frame[] frames;
 		private Tag[] tags;
 		private Mesh[] meshes;
 		private Model[] links;
+		Texture2D[] textures;		// All textures used by this model
 
+		static Vector3[,] normals;	// 65,536 precomputed normals
+
+		// Animation information
 		private int startFrame;
 		private int endFrame;
 		private int nextFrame;
 		private int currentFrame;
-
 		float interpolation = 0;
 
+		// Properties
 		public int StartFrame
 		{
-			set
-			{
-				startFrame = value;
-			}
+			set { startFrame = value; }
 		}
 
 		public int EndFrame
 		{
-			set
-			{
-				endFrame = value;
-			}
+			set { endFrame = value; }
 		}
 
 		public int NextFrame
 		{
-			set
-			{
-				nextFrame = value;
-			}
+			set { nextFrame = value; }
 		}
 
 		public int CurrentFrame
 		{
-			set
-			{
-				currentFrame = value;
-			}
+			set { currentFrame = value; }
 		}
-
-		Texture2D[] textures;
-		static Vector3[,] normals = new Vector3[256, 256];
 
 		public Model(string modelPath, string skinPath)
 		{
@@ -168,6 +165,7 @@ namespace Project2
 			frames = new Frame[header.frameCount];
 			tags = new Tag[header.frameCount * header.tagCount];
 			meshes = new Mesh[header.meshCount];
+			links = new Model[tags.Length];
 
 			// Frames
 			reader.BaseStream.Seek(header.frameOffset, SeekOrigin.Begin);
@@ -247,7 +245,7 @@ namespace Project2
 
 				// Texture coordinates
 				reader.BaseStream.Seek(currentOffset + meshes[i].header.textureVectorOffset, SeekOrigin.Begin);
-				meshes[i].textureCoordinates = new Vector2[meshes[i].header.vertexCount];
+				meshes[i].textureCoordinates = new Vector2[meshes[i].header.vertexCount * meshes[i].header.frameCount];
 				for (int k = 0; k < meshes[i].textureCoordinates.Length; ++k)
 					meshes[i].textureCoordinates[k] = new Vector2(reader.ReadSingle(), reader.ReadSingle());
 
@@ -260,6 +258,7 @@ namespace Project2
 					meshes[i].vertices[k].normal = new byte[2] { reader.ReadByte(), reader.ReadByte() };
 				}
 
+				// Texture starts uninitialized
 				meshes[i].texture = -1;
 
 				// Increase offset for next mesh
@@ -331,99 +330,119 @@ namespace Project2
 			return texture;
 		}
 
+		// Changes interpolation amount based on time between keyframes
 		public void UpdateFrame(float frameFraction)
 		{
 			interpolation += frameFraction;
 
+			// Increment current and next frames
 			if (interpolation > 1)
 			{
 				interpolation = 0;
 				currentFrame = nextFrame;
 				++nextFrame;
 
+				// Looping
 				if (nextFrame >= endFrame)
 					nextFrame = startFrame;
 			}
 		}
 
-        public void Link(string tag, Model model) //Make sure link is NOT bi-directional
+		// Creates references to other models linked to this one by tags
+        public void Link(string tagName, Model model)
         {
-            links = new Model[tags.Length];
             for (int i = 0; i < tags.Length; i++)
             {
-                if (tag.Equals(tags[i]) )
+                if (tagName.Equals(tags[i].name) )
                 {
                     links[i] = model; 
                 }
             }
         }
 
-        public void DrawAllModels(Matrix current, Matrix next, BasicEffect effect) //possible infinite recursion
+		// Draws this model and all those linked to it
+        public void DrawAllModels(Matrix current, Matrix next, BasicEffect effect)
         {
 			DrawModel(current, next, effect);
+			
+			Matrix m;
+			Matrix mNext;
+			for (int i = 0; i < header.tagCount; ++i)
+			{
+				if (links[i] != null)
+				{
+					int currentTag = currentFrame * header.tagCount + i;
+					int nextTag = nextFrame * header.tagCount + i;
 
-            //Comment out the lines below to get it to work like before
-            int linkCount = 0;
-            Matrix m;
-            Matrix mNext;
-            for(int i = 0; i < tags.Length; i++)
-            {
-                int currentTag = currentFrame * tags.Length + linkCount;
-                int nextTag = nextFrame * tags.Length + linkCount;
+					m = tags[currentTag].rotation;
+					mNext = tags[nextTag].rotation;
 
-                m = tags[currentTag].rotation;
-                mNext = tags[nextTag].rotation;
+					m *= current;
+					mNext *= next;
 
-                m = Matrix.Multiply(m, current);
-                mNext = Matrix.Multiply(mNext, next);
+					links[i].DrawAllModels(m, mNext, effect);
+				}
+			}
+		}
 
-                DrawAllModels(m, mNext ,effect);
-                linkCount++;
-            }
-        }
-
+		// Renders this model to the screen
 		public void DrawModel(Matrix current, Matrix next, BasicEffect effect)
 		{
+			// Loop through each mesh
 			for (int i = 0; i < header.meshCount; ++i)
 			{
+				// Set appropriate texture
 				if (meshes[i].texture != -1)
 					effect.Texture = textures[meshes[i].texture];
 
+				// Vertex array for current mesh
 				VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[meshes[i].header.vertexCount];
 
+				// Index of first vertex for both current and next frame
 				int currentOffset = currentFrame * meshes[i].header.vertexCount;
 				int nextOffset = nextFrame * meshes[i].header.vertexCount;
 
+				// Loop through all vertices in mesh
 				for (int j = 0; j < meshes[i].header.vertexCount; ++j)
 				{
+					// Find current and next vertex based on offset
 					Vertex currentVertex = meshes[i].vertices[j + currentOffset];
 					Vertex nextVertex = meshes[i].vertices[j + nextOffset];
 
+					// Positions of current and next vertices
 					Vector3 currentPosition = currentVertex.vertex;
 					Vector3 nextPosition = nextVertex.vertex;
 
+					// Transform positions
 					currentPosition = Vector3.Transform(currentPosition, current);
 					nextPosition = Vector3.Transform(nextPosition, next);
 
+					// Get precomputed normals based on the two bytes of encoded normals
 					Vector3 currentNormal = normals[currentVertex.normal[0], currentVertex.normal[1]];
 					Vector3 nextNormal = normals[nextVertex.normal[0], nextVertex.normal[1]];
 
+					// Transform normals
 					currentNormal = Vector3.TransformNormal(currentNormal, current);
 					nextNormal = Vector3.TransformNormal(nextNormal, next);
 
+					// Interpolate between current and next positions and normals
 					Vector3 interpolatedPosition = Vector3.Lerp(currentPosition, nextPosition, interpolation);
 					Vector3 interpolatedNormal = Vector3.Lerp(currentNormal, nextNormal, interpolation);
 
+					// Get texture coordinates for this vertex
 					Vector2 textureCoordinate = meshes[i].textureCoordinates[j + currentOffset];
 
+					// Add new vertex object to list
 					vertices[j] = new VertexPositionNormalTexture(interpolatedPosition, interpolatedNormal, textureCoordinate);
 				}
 
+				// Create vertex buffer for current mesh with new vertices
 				VertexBuffer vertexBuffer = new VertexBuffer(device, typeof(VertexPositionNormalTexture), meshes[i].header.vertexCount, BufferUsage.WriteOnly);
-				vertexBuffer.SetData<VertexPositionNormalTexture>(vertices);
+				vertexBuffer.SetData(vertices);
 
 				device.SetVertexBuffer(vertexBuffer);
 				
+				// Draw current mesh
 				foreach (EffectPass pass in effect.CurrentTechnique.Passes)
 				{
 					pass.Apply();
@@ -432,9 +451,12 @@ namespace Project2
 			}
 		}
 
+		// Sets up static members - GraphicsDevice and precomputed normals
         public static void SetUp(GraphicsDevice device)
         {
 			Model.device = device;
+
+			normals = new Vector3[256, 256];
 
             for (int i = 0; i < 256; i++)
             {
