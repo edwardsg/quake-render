@@ -91,8 +91,9 @@ namespace Project2
 		private int endFrame;
 		private int nextFrame;
 		private int currentFrame;
+        private int linkCount = 0;
 
-		float interpolation = 0;
+        float interpolation = 0;
 
 		public int StartFrame
 		{
@@ -349,11 +350,14 @@ namespace Project2
         public void Link(string tag, Model model) //Make sure link is NOT bi-directional
         {
             links = new Model[tags.Length];
+           
             for (int i = 0; i < tags.Length; i++)
             {
-                if (tag.Equals(tags[i]) )
+                if (tag.Equals(tags[i].name) )
                 {
-                    links[i] = model; 
+                    links[linkCount] = model;
+                    linkCount++;
+                    i = tags.Length;
                 }
             }
         }
@@ -362,8 +366,6 @@ namespace Project2
         {
 			DrawModel(current, next, effect);
 
-            //Comment out the lines below to get it to work like before
-            int linkCount = 0;
             Matrix m;
             Matrix mNext;
             for(int i = 0; i < tags.Length; i++)
@@ -391,7 +393,8 @@ namespace Project2
 
 				VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[meshes[i].header.vertexCount];
 
-				int currentOffset = currentFrame * meshes[i].header.vertexCount;
+
+                int currentOffset = currentFrame * meshes[i].header.vertexCount;
 				int nextOffset = nextFrame * meshes[i].header.vertexCount;
 
 				for (int j = 0; j < meshes[i].header.vertexCount; ++j)
