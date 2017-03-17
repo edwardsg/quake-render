@@ -61,6 +61,7 @@ namespace Project2
 		protected override void Update(GameTime gameTime)
 		{
             KeyboardState keyboard = Keyboard.GetState();
+			float milliPassed = gameTime.ElapsedGameTime.Milliseconds;
 
             if (keyboard.IsKeyDown(Keys.Enter))
             {
@@ -77,13 +78,13 @@ namespace Project2
             }
 
 			if (keyboard.IsKeyDown(Keys.Left))
-				cameraRotation = -cameraRotateSpeed * gameTime.ElapsedGameTime.Milliseconds;
+				cameraRotation = -cameraRotateSpeed * milliPassed;
 			else if (keyboard.IsKeyDown(Keys.Right))
-				cameraRotation = cameraRotateSpeed * gameTime.ElapsedGameTime.Milliseconds;
+				cameraRotation = cameraRotateSpeed * milliPassed;
 			else
 				cameraRotation = 0;
 
-			lara.Update((float) gameTime.ElapsedGameTime.Milliseconds / 1000);
+			lara.Update(milliPassed / 1000);
 
             base.Update(gameTime);
 		}
