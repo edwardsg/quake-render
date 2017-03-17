@@ -12,7 +12,7 @@ namespace Project2
         BasicEffect effect;
 
 		// Window size
-		int windowWidth = 600;
+		int windowWidth = 800;
 		int windowHeight = 800;
 
 		// Camera starting position, rotation and zoom speed
@@ -68,7 +68,7 @@ namespace Project2
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
 			// Load model from file model.txt
-			player = new MD3(GraphicsDevice, "model.txt");
+			player = new MD3(effect, "modelSarge.txt");
 		}
 
 		protected override void UnloadContent()
@@ -129,7 +129,7 @@ namespace Project2
 			cameraPosition = Vector3.Transform(cameraPosition, cameraRotateY);
 
 			// Set up scale, camera direction, and perspective projection
-			Matrix world = Matrix.CreateScale(scale) * Matrix.CreateRotationX(-MathHelper.PiOver2);
+			Matrix world = Matrix.CreateRotationX(-MathHelper.PiOver2);
 			Matrix view = Matrix.CreateLookAt(cameraPosition, Vector3.Zero, Vector3.Up);
 			Matrix projection = Matrix.CreatePerspectiveFieldOfView(viewAngle, GraphicsDevice.Viewport.AspectRatio, nearPlane, farPlane);
 			

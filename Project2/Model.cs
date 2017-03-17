@@ -86,8 +86,6 @@ namespace Project2
 			public byte[] normal;	// Vertex normal encoded as index into precomputed normals
 		};
 
-		private static GraphicsDevice device;
-
 		// All model data
 		private MD3Header header;
 		private Frame[] frames;
@@ -105,31 +103,37 @@ namespace Project2
 		private int currentFrame;
 		float interpolation = 0;
 
+		float scale = (float) 1 / 64;
+
 		// Properties
 		public int StartFrame
 		{
+			get { return startFrame; }
 			set { startFrame = value; }
 		}
 
 		public int EndFrame
 		{
+			get { return endFrame; }
 			set { endFrame = value; }
 		}
 
 		public int NextFrame
 		{
+			get { return nextFrame; }
 			set { nextFrame = value; }
 		}
 
 		public int CurrentFrame
 		{
+			get { return currentFrame; }
 			set { currentFrame = value; }
 		}
 
-		public Model(string modelPath, string skinPath)
+		public Model(string modelPath, string skinPath, BasicEffect effect)
 		{
 			LoadModel(modelPath);
-			LoadSkin(skinPath);
+			LoadSkin(skinPath, effect);
 		}
 
 		// Load a MD3 model
@@ -254,7 +258,7 @@ namespace Project2
 				meshes[i].vertices = new Vertex[meshes[i].header.vertexCount * meshes[i].header.frameCount];
 				for (int k = 0; k < meshes[i].vertices.Length; ++k)
 				{
-					meshes[i].vertices[k].vertex = new Vector3(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16());
+					meshes[i].vertices[k].vertex = new Vector3(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16()) * scale;
 					meshes[i].vertices[k].normal = new byte[2] { reader.ReadByte(), reader.ReadByte() };
 				}
 
@@ -269,7 +273,7 @@ namespace Project2
 		}
 
 		// Loads a skin
-		private void LoadSkin(string skinFileName)
+		private void LoadSkin(string skinFileName, BasicEffect effect)
 		{
 			var lines = File.ReadLines(skinFileName);
 
@@ -289,7 +293,7 @@ namespace Project2
 					// Load texture from file name and add it to texture list
 					if (i != meshes.Length)
 					{
-						textures[currentTexture] = LoadTexture(device, texturePath);
+						textures[currentTexture] = LoadTexture(effect, texturePath);
 						meshes[i].texture = currentTexture;
 						++currentTexture;
 					}
@@ -302,14 +306,14 @@ namespace Project2
 		}
 
 		// Reads textures from jpg, png, and tga files
-		public static Texture2D LoadTexture(GraphicsDevice device, string texturePath)
+		public static Texture2D LoadTexture(BasicEffect effect, string texturePath)
 		{
 			Texture2D texture;
 
 			if (texturePath.ToLower().EndsWith(".tga"))
 			{
 				TargaImage image = new TargaImage(texturePath);
-				texture = new Texture2D(device, image.Header.Width, image.Header.Height);
+				texture = new Texture2D(effect.GraphicsDevice, image.Header.Width, image.Header.Height);
 				Color[] data = new Color[image.Header.Height * image.Header.Width];
 				for (int y = 0; y < image.Header.Height; y++)
 					for (int x = 0; x < image.Header.Width; x++)
@@ -323,7 +327,7 @@ namespace Project2
 			else
 			{
 				FileStream stream = new FileStream(texturePath, FileMode.Open);
-				texture = Texture2D.FromStream(device, stream);
+				texture = Texture2D.FromStream(effect.GraphicsDevice, stream);
 				stream.Close();
 			}
 
@@ -373,8 +377,8 @@ namespace Project2
 					int nextTag = nextFrame * header.tagCount + i;
 
 					// Find relative rotation and position of next model
-					Matrix rotationPosition = current * tags[currentTag].rotation * Matrix.CreateTranslation(tags[currentTag].position);
-					Matrix rotationPositionNext = next * tags[nextTag].rotation * Matrix.CreateTranslation(tags[nextTag].position);
+					Matrix rotationPosition = tags[currentTag].rotation * Matrix.CreateTranslation(tags[currentTag].position) * current;
+					Matrix rotationPositionNext = tags[nextTag].rotation * Matrix.CreateTranslation(tags[nextTag].position) * next;
 
 					// Draw next model recursively
 					links[i].DrawAllModels(rotationPosition, rotationPositionNext, effect);
@@ -385,6 +389,8 @@ namespace Project2
 		// Renders this model to the screen
 		public void DrawModel(Matrix current, Matrix next, BasicEffect effect)
 		{
+			GraphicsDevice device = effect.GraphicsDevice;
+
 			// Loop through each mesh
 			for (int i = 0; i < header.meshCount; ++i)
 			{
@@ -454,10 +460,8 @@ namespace Project2
 		}
 
 		// Sets up static members - GraphicsDevice and precomputed normals
-        public static void SetUp(GraphicsDevice device)
+        public static void SetUp()
         {
-			Model.device = device;
-
 			normals = new Vector3[256, 256];
 
             for (int i = 0; i < 256; i++)

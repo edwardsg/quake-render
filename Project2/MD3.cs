@@ -61,13 +61,9 @@ namespace Project2
         private Animation[] animations = new Animation[(int) AnimationType.MAX_ANIMATIONS];
         private int currentAnimation;
 
-		GraphicsDevice device;
-
 		// Loads model data from file containing paths to all models, skins, and animation
-		public MD3(GraphicsDevice device, string modelFilePath)
+		public MD3(BasicEffect effect, string modelFilePath)
 		{
-			this.device = device;
-
 			StreamReader reader = new StreamReader(File.Open(modelFilePath, FileMode.Open));
 
 			// Geth file paths
@@ -81,13 +77,13 @@ namespace Project2
 			string gunSkinPath = reader.ReadLine();
 			string animationPath = reader.ReadLine();
 
-			Model.SetUp(device);
+			Model.SetUp();
 
 			// Create models from files
-			lowerModel = new Model(lowerModelPath, lowerSkinPath);
-			upperModel = new Model(upperModelPath, upperSkinPath);
-			headModel = new Model(headModelPath, headSkinPath);
-			gunModel = new Model(gunModelPath, gunSkinPath);
+			lowerModel = new Model(lowerModelPath, lowerSkinPath, effect);
+			upperModel = new Model(upperModelPath, upperSkinPath, effect);
+			headModel = new Model(headModelPath, headSkinPath, effect);
+			gunModel = new Model(gunModelPath, gunSkinPath, effect);
 
 			// Load animation data
 			LoadAnimation(animationPath);
@@ -122,13 +118,8 @@ namespace Project2
 					++index;
 				}
 				else
-				{
 					reader.ReadLine();
-				}
 			}
-
-			for (int i = (int) AnimationType.LEGS_WALKCR; i < (int) AnimationType.MAX_ANIMATIONS; ++i)
-				animations[i].firstFrame -= animations[(int) AnimationType.TORSO_GESTURE].firstFrame;
         }
 
 		// Sets animation data in appropriate models based on current animation being used
@@ -138,30 +129,50 @@ namespace Project2
 			if (currentAnimation <= (int)AnimationType.BOTH_DEAD3)
 			{
 				upperModel.StartFrame = animations[currentAnimation].firstFrame;
-				upperModel.EndFrame = animations[currentAnimation].totalFrames;
-				upperModel.CurrentFrame = animations[currentAnimation].firstFrame;
-				upperModel.NextFrame = (animations[currentAnimation].firstFrame + 1) % animations[currentAnimation].totalFrames;
+				upperModel.EndFrame = upperModel.StartFrame + animations[currentAnimation].totalFrames;
+				upperModel.CurrentFrame = upperModel.StartFrame;
+				upperModel.NextFrame = upperModel.StartFrame + 1;
+				if (upperModel.NextFrame >= upperModel.EndFrame)
+					upperModel.NextFrame = upperModel.StartFrame;
 
 				lowerModel.StartFrame = animations[currentAnimation].firstFrame;
-				lowerModel.EndFrame = animations[currentAnimation].totalFrames;
-				lowerModel.CurrentFrame = animations[currentAnimation].firstFrame;
-				lowerModel.NextFrame = (animations[currentAnimation].firstFrame + 1) % animations[currentAnimation].totalFrames;
+				lowerModel.EndFrame = lowerModel.StartFrame + animations[currentAnimation].totalFrames;
+				lowerModel.CurrentFrame = lowerModel.StartFrame;
+				lowerModel.NextFrame = lowerModel.StartFrame + 1;
+				if (lowerModel.NextFrame >= lowerModel.EndFrame)
+					lowerModel.NextFrame = lowerModel.StartFrame;
 			}
 			// Animations that only affect upper model
 			else if (currentAnimation <= (int)AnimationType.TORSO_STAND2)
 			{
 				upperModel.StartFrame = animations[currentAnimation].firstFrame;
-				upperModel.EndFrame = animations[currentAnimation].totalFrames;
-				upperModel.CurrentFrame = animations[currentAnimation].firstFrame;
-				upperModel.NextFrame = (animations[currentAnimation].firstFrame + 1) % animations[currentAnimation].totalFrames;
+				upperModel.EndFrame = upperModel.StartFrame + animations[currentAnimation].totalFrames;
+				upperModel.CurrentFrame = upperModel.StartFrame;
+				upperModel.NextFrame = upperModel.StartFrame + 1;
+				if (upperModel.NextFrame >= upperModel.EndFrame)
+					upperModel.NextFrame = upperModel.StartFrame;
+
+				// Reset legs to default
+				lowerModel.StartFrame = 0;
+				lowerModel.EndFrame = 0;
+				lowerModel.CurrentFrame = 0;
+				lowerModel.NextFrame = 0;
 			}
 			// Only lower model
 			else
 			{
+				// Reset torso to default
+				upperModel.StartFrame = 0;
+				upperModel.EndFrame = 0;
+				upperModel.CurrentFrame = 0;
+				upperModel.NextFrame = 0;
+
 				lowerModel.StartFrame = animations[currentAnimation].firstFrame;
-				lowerModel.EndFrame = animations[currentAnimation].totalFrames;
-				lowerModel.CurrentFrame = animations[currentAnimation].firstFrame;
-				lowerModel.NextFrame = (animations[currentAnimation].firstFrame + 1) % animations[currentAnimation].totalFrames;
+				lowerModel.EndFrame = lowerModel.StartFrame + animations[currentAnimation].totalFrames;
+				lowerModel.CurrentFrame = lowerModel.StartFrame;
+				lowerModel.NextFrame = lowerModel.StartFrame + 1;
+				if (lowerModel.NextFrame >= lowerModel.EndFrame)
+					lowerModel.NextFrame = lowerModel.StartFrame;
 			}
         }
 
