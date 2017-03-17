@@ -346,9 +346,40 @@ namespace Project2
 			}
 		}
 
-        public void DrawAllModels(Matrix current, Matrix next, BasicEffect effect)
+        public void Link(string tag, Model model) //Make sure link is NOT bi-directional
+        {
+            links = new Model[tags.Length];
+            for (int i = 0; i < tags.Length; i++)
+            {
+                if (tag.Equals(tags[i]) )
+                {
+                    links[i] = model; 
+                }
+            }
+        }
+
+        public void DrawAllModels(Matrix current, Matrix next, BasicEffect effect) //possible infinite recursion
         {
 			DrawModel(current, next, effect);
+
+            //Comment out the lines below to get it to work like before
+            int linkCount = 0;
+            Matrix m;
+            Matrix mNext;
+            for(int i = 0; i < tags.Length; i++)
+            {
+                int currentTag = currentFrame * tags.Length + linkCount;
+                int nextTag = nextFrame * tags.Length + linkCount;
+
+                m = tags[currentTag].rotation;
+                mNext = tags[nextTag].rotation;
+
+                m = Matrix.Multiply(m, current);
+                mNext = Matrix.Multiply(mNext, next);
+
+                DrawAllModels(m, mNext ,effect);
+                linkCount++;
+            }
         }
 
 		public void DrawModel(Matrix current, Matrix next, BasicEffect effect)
