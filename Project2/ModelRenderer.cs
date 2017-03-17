@@ -11,12 +11,16 @@ namespace Project2
 		SpriteBatch spriteBatch;
         BasicEffect effect;
 
+		// Window size
+		int windowWidth = 600;
+		int windowHeight = 800;
+
 		// Camera starting position, rotation and zoom speed
 		Vector3 cameraPosition = new Vector3(0, 0, 100);
 		float cameraRotateSpeed = .01f;
 		float cameraMoveSpeed = .02f;
 		float minCameraDistance = 10;
-		float maxCameraDistance = 100;
+		float maxCameraDistance = 300;
 
 		// Scale of model
 		float scale = (float) 1 / 64;
@@ -24,7 +28,7 @@ namespace Project2
 		// Projection
 		float viewAngle = .9f;
 		float nearPlane = .01f;
-		float farPlane = 200;
+		float farPlane = 500;
 		
         bool enterPressed = false;
         float cameraRotation = 0;
@@ -41,6 +45,17 @@ namespace Project2
 		
 		protected override void Initialize()
 		{
+			// Set window position
+			int screenWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+			int screenHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+			Window.Position = new Point(screenWidth / 2 - windowWidth / 2, screenHeight / 2 - windowHeight / 2);
+
+			// Set window size
+			graphics.PreferredBackBufferWidth = windowWidth;
+			graphics.PreferredBackBufferHeight = windowHeight;
+			graphics.ApplyChanges();
+
+			// Set window title
 			Window.Title = "Quake Model Renderer";
 
 			effect = new BasicEffect(GraphicsDevice);

@@ -373,11 +373,8 @@ namespace Project2
 					int nextTag = nextFrame * header.tagCount + i;
 
 					// Find relative rotation and position of next model
-					Matrix rotationPosition = tags[currentTag].rotation;
-					Matrix rotationPositionNext = tags[nextTag].rotation;
-
-					rotationPosition *= current * Matrix.CreateTranslation(tags[currentTag].position);
-					rotationPositionNext *= next * Matrix.CreateTranslation(tags[nextTag].position);
+					Matrix rotationPosition = current * tags[currentTag].rotation * Matrix.CreateTranslation(tags[currentTag].position);
+					Matrix rotationPositionNext = next * tags[nextTag].rotation * Matrix.CreateTranslation(tags[nextTag].position);
 
 					// Draw next model recursively
 					links[i].DrawAllModels(rotationPosition, rotationPositionNext, effect);
